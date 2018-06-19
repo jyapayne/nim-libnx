@@ -8,7 +8,7 @@ license       = "MIT"
 srcDir = "src"
 
 # Deps
-requires "nim >= 0.18.0", "https://github.com/jyapayne/nimgenEx@#head"
+requires "nim >= 0.18.0", "https://github.com/jyapayne/nimgenEx#head"
 
 task setup, "Download and generate":
   exec "nimgen libnxGen.cfg"
