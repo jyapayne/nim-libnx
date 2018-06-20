@@ -3,7 +3,7 @@
 version       = "0.1.0"
 author        = "Joey Payne"
 description   = "Nintendo Switch library libnx for Nim."
-license       = "MIT"
+license       = "The Unlicense"
 
 srcDir = "src"
 
