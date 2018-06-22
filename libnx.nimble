@@ -9,12 +9,16 @@ srcDir = "src"
 
 # Deps
 requires "nim >= 0.18.0", "https://github.com/jyapayne/nimgenEx#head"
+requires "https://github.com/jyapayne/switch-build#head"
 
-task setup, "Download and generate":
+task setup, "Download and generate bindings":
   exec "nimgen libnxGen.cfg"
 
-before install:
-  setupTask()
+task buildExamples, "Build switch examples":
+  exec "switch_build --author='jyapayne' --version='1.0.0' examples/helloworld/helloworld.nim"
+
+#before install:
+#  setupTask()
 
 task test, "Run tests":
   exec "nim c -r tests/test.nim"
