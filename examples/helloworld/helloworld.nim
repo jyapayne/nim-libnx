@@ -1,7 +1,7 @@
-import libnx_wrapper/gfx
-import libnx_wrapper/console
-import libnx_wrapper/hid
-import libnx_wrapper/applet
+import libnx/wrapper/gfx
+import libnx/wrapper/console
+import libnx/wrapper/hid
+import libnx/wrapper/applet
 
 proc printf(formatstr: cstring) {.importc: "printf", varargs,
                                   header: "<stdio.h>".}
