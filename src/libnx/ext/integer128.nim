@@ -1,5 +1,4 @@
-{.emit:"typedef __uint128_t NU128; typedef __int128_t NI128;".}
-
+import strutils
 # Capacity of 42 because it seems
 # reasonable that the number will fit.
 # If it doesn't, nim will just allocate
@@ -7,11 +6,11 @@
 const STRING_CAPACITY = 42
 
 type
-  s128* {.importc: "NI128"} = object
+  s128* {.importc: "__int128_t"} = object
     high: int64
     low: uint64
 
-  u128* {.importc: "NU128"} = object
+  u128* {.importc: "__uint128_t"} = object
     high, low: uint64
 
   helperInt128 = object
@@ -326,6 +325,9 @@ proc `$`*(val: s128): string =
     str.add(char(48 + digit))
 
   result = str
+
+proc toHex*(val: u128): string =
+  result = val.hi.toHex & val.lo.toHex
 
 proc `$`*(val: u128): string =
   var v = val

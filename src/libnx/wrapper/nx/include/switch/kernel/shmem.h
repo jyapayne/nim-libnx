@@ -7,7 +7,7 @@
  */
 #pragma once
 #include "../types.h"
- 
+
 /// Shared memory information structure.
 typedef struct {
     Handle      handle;   ///< Kernel object handle.
@@ -15,7 +15,7 @@ typedef struct {
     Permission  perm;     ///< Permissions.
     void*       map_addr; ///< Address to which the shared memory object is mapped.
 } SharedMemory;
- 
+
 /**
  * @brief Creates a shared memory object.
  * @param s Shared memory information structure which will be filled in.
@@ -26,7 +26,7 @@ typedef struct {
  * @warning This is a privileged operation; in normal circumstances applications cannot use this function.
  */
 Result shmemCreate(SharedMemory* s, size_t size, Permission local_perm, Permission remote_perm);
- 
+
 /**
  * @brief Loads a shared memory object coming from a remote process.
  * @param s Shared memory information structure which will be filled in.
@@ -35,28 +35,30 @@ Result shmemCreate(SharedMemory* s, size_t size, Permission local_perm, Permissi
  * @param perm Permissions with which the shared memory object will be mapped in the local process.
  */
 void shmemLoadRemote(SharedMemory* s, Handle handle, size_t size, Permission perm);
- 
+
 /**
  * @brief Maps a shared memory object.
  * @param s Shared memory information structure.
  * @return Result code.
  */
 Result shmemMap(SharedMemory* s);
- 
+
 /**
  * @brief Unmaps a shared memory object.
  * @param s Shared memory information structure.
  * @return Result code.
  */
 Result shmemUnmap(SharedMemory* s);
- 
+
 /**
  * @brief Retrieves the mapped address of a shared memory object.
  * @param s Shared memory information structure.
  * @return Mapped address of the shared memory object.
  */
-static inline void* shmemGetAddr(SharedMemory* s);
- 
+static inline void* shmemGetAddr(SharedMemory* s) {
+    return s->map_addr;
+}
+
 /**
  * @brief Frees up resources used by a shared memory object, unmapping and closing handles, etc.
  * @param s Shared memory information structure.

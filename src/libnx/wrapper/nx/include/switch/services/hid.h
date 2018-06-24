@@ -353,14 +353,14 @@ typedef struct HidTouchScreenHeader
     u64 maxEntryIndex;
     u64 timestamp;
 } HidTouchScreenHeader;
-// static_assert(sizeof(HidTouchScreenHeader) == 0x28, "Hid touch screen header structure has incorrect size");
+static_assert(sizeof(HidTouchScreenHeader) == 0x28, "Hid touch screen header structure has incorrect size");
 
 typedef struct HidTouchScreenEntryHeader
 {
     u64 timestamp;
     u64 numTouches;
 } HidTouchScreenEntryHeader;
-// static_assert(sizeof(HidTouchScreenEntryHeader) == 0x10, "Hid touch screen entry header structure has incorrect size");
+static_assert(sizeof(HidTouchScreenEntryHeader) == 0x10, "Hid touch screen entry header structure has incorrect size");
 
 typedef struct HidTouchScreenEntryTouch
 {
@@ -374,7 +374,7 @@ typedef struct HidTouchScreenEntryTouch
     u32 angle;
     u32 padding_2;
 } HidTouchScreenEntryTouch;
-// static_assert(sizeof(HidTouchScreenEntryTouch) == 0x28, "Hid touch screen touch structure has incorrect size");
+static_assert(sizeof(HidTouchScreenEntryTouch) == 0x28, "Hid touch screen touch structure has incorrect size");
 
 typedef struct HidTouchScreenEntry
 {
@@ -382,7 +382,7 @@ typedef struct HidTouchScreenEntry
     HidTouchScreenEntryTouch touches[16];
     u64 unk;
 } HidTouchScreenEntry;
-// static_assert(sizeof(HidTouchScreenEntry) == 0x298, "Hid touch screen entry structure has incorrect size");
+static_assert(sizeof(HidTouchScreenEntry) == 0x298, "Hid touch screen entry structure has incorrect size");
 
 typedef struct HidTouchScreen
 {
@@ -390,7 +390,7 @@ typedef struct HidTouchScreen
     HidTouchScreenEntry entries[17];
     u8 padding[0x3c0];
 } HidTouchScreen;
-// static_assert(sizeof(HidTouchScreen) == 0x3000, "Hid touch screen structure has incorrect size");
+static_assert(sizeof(HidTouchScreen) == 0x3000, "Hid touch screen structure has incorrect size");
 
 // End HidTouchScreen
 
@@ -403,7 +403,7 @@ typedef struct HidMouseHeader
     u64 latestEntry;
     u64 maxEntryIndex;
 } HidMouseHeader;
-// static_assert(sizeof(HidMouseHeader) == 0x20, "Hid mouse header structure has incorrect size");
+static_assert(sizeof(HidMouseHeader) == 0x20, "Hid mouse header structure has incorrect size");
 
 typedef struct HidMouseEntry
 {
@@ -412,7 +412,7 @@ typedef struct HidMouseEntry
     MousePosition position;
     u64 buttons;
 } HidMouseEntry;
-// static_assert(sizeof(HidMouseEntry) == 0x30, "Hid mouse entry structure has incorrect size");
+static_assert(sizeof(HidMouseEntry) == 0x30, "Hid mouse entry structure has incorrect size");
 
 typedef struct HidMouse
 {
@@ -420,7 +420,7 @@ typedef struct HidMouse
     HidMouseEntry entries[17];
     u8 padding[0xB0];
 } HidMouse;
-// static_assert(sizeof(HidMouse) == 0x400, "Hid mouse structure has incorrect size");
+static_assert(sizeof(HidMouse) == 0x400, "Hid mouse structure has incorrect size");
 
 // End HidMouse
 
@@ -433,7 +433,7 @@ typedef struct HidKeyboardHeader
     u64 latestEntry;
     u64 maxEntryIndex;
 } HidKeyboardHeader;
-// static_assert(sizeof(HidKeyboardHeader) == 0x20, "Hid keyboard header structure has incorrect size");
+static_assert(sizeof(HidKeyboardHeader) == 0x20, "Hid keyboard header structure has incorrect size");
 
 typedef struct HidKeyboardEntry
 {
@@ -442,7 +442,7 @@ typedef struct HidKeyboardEntry
     u64 modifier;
     u32 keys[8];
 } HidKeyboardEntry;
-// static_assert(sizeof(HidKeyboardEntry) == 0x38, "Hid keyboard entry structure has incorrect size");
+static_assert(sizeof(HidKeyboardEntry) == 0x38, "Hid keyboard entry structure has incorrect size");
 
 typedef struct HidKeyboard
 {
@@ -450,7 +450,7 @@ typedef struct HidKeyboard
     HidKeyboardEntry entries[17];
     u8 padding[0x28];
 } HidKeyboard;
-// static_assert(sizeof(HidKeyboard) == 0x400, "Hid keyboard structure has incorrect size");
+static_assert(sizeof(HidKeyboard) == 0x400, "Hid keyboard structure has incorrect size");
 
 // End HidKeyboard
 
@@ -463,7 +463,7 @@ typedef struct HidControllerMAC
     u64 unk;
     u64 timestamp_2;
 } HidControllerMAC;
-// static_assert(sizeof(HidControllerMAC) == 0x20, "Hid controller MAC structure has incorrect size");
+static_assert(sizeof(HidControllerMAC) == 0x20, "Hid controller MAC structure has incorrect size");
 
 typedef struct HidControllerHeader
 {
@@ -478,7 +478,7 @@ typedef struct HidControllerHeader
     u32 rightColorBody;
     u32 rightColorbuttons;
 } HidControllerHeader;
-// static_assert(sizeof(HidControllerHeader) == 0x28, "Hid controller header structure has incorrect size");
+static_assert(sizeof(HidControllerHeader) == 0x28, "Hid controller header structure has incorrect size");
 
 typedef struct HidControllerLayoutHeader
 {
@@ -487,7 +487,7 @@ typedef struct HidControllerLayoutHeader
     u64 latestEntry;
     u64 maxEntryIndex;
 } HidControllerLayoutHeader;
-// static_assert(sizeof(HidControllerLayoutHeader) == 0x20, "Hid controller layout header structure has incorrect size");
+static_assert(sizeof(HidControllerLayoutHeader) == 0x20, "Hid controller layout header structure has incorrect size");
 
 typedef struct HidControllerInputEntry
 {
@@ -497,14 +497,14 @@ typedef struct HidControllerInputEntry
     JoystickPosition joysticks[JOYSTICK_NUM_STICKS];
     u64 connectionState;
 } HidControllerInputEntry;
-// static_assert(sizeof(HidControllerInputEntry) == 0x30, "Hid controller input entry structure has incorrect size");
+static_assert(sizeof(HidControllerInputEntry) == 0x30, "Hid controller input entry structure has incorrect size");
 
 typedef struct HidControllerLayout
 {
     HidControllerLayoutHeader header;
     HidControllerInputEntry entries[17];
 } HidControllerLayout;
-// static_assert(sizeof(HidControllerLayout) == 0x350, "Hid controller layout structure has incorrect size");
+static_assert(sizeof(HidControllerLayout) == 0x350, "Hid controller layout structure has incorrect size");
 
 typedef struct HidController
 {
@@ -515,7 +515,7 @@ typedef struct HidController
     HidControllerMAC macRight;
     u8 unk_2[0xDF8];
 } HidController;
-// static_assert(sizeof(HidController) == 0x5000, "Hid controller structure has incorrect size");
+static_assert(sizeof(HidController) == 0x5000, "Hid controller structure has incorrect size");
 
 // End HidController
 
@@ -537,14 +537,14 @@ typedef struct HidSharedMemory
     HidController controllers[10];
     u8 unkSection9[0x4600];
 } HidSharedMemory;
-// static_assert(sizeof(HidSharedMemory) == 0x40000, "Hid Shared Memory structure has incorrect size");
+static_assert(sizeof(HidSharedMemory) == 0x40000, "Hid Shared Memory structure has incorrect size");
 
 typedef struct HidVibrationDeviceInfo
 {
     u32 unk_x0;
     u32 unk_x4; ///< 0x1 for left-joycon, 0x2 for right-joycon.
 } HidVibrationDeviceInfo;
-// static_assert(sizeof(HidVibrationDeviceInfo) == 0x8, "Hid VibrationDeviceInfo structure has incorrect size");
+static_assert(sizeof(HidVibrationDeviceInfo) == 0x8, "Hid VibrationDeviceInfo structure has incorrect size");
 
 typedef struct HidVibrationValue
 {
@@ -553,7 +553,7 @@ typedef struct HidVibrationValue
     float amp_high;  ///< High Band amplitude. 1.0f: Max amplitude.
     float freq_high; ///< High Band frequency in Hz.
 } HidVibrationValue;
-// static_assert(sizeof(HidVibrationValue) == 0x10, "Hid VibrationValue structure has incorrect size");
+static_assert(sizeof(HidVibrationValue) == 0x10, "Hid VibrationValue structure has incorrect size");
 
 Result hidInitialize(void);
 void hidExit(void);
