@@ -16,6 +16,7 @@ task setup, "Download and generate bindings":
 
 task buildExamples, "Build switch examples":
   exec "switch_build --author='jyapayne' --version='1.0.0' examples/helloworld/helloworld.nim"
+  exec "switch_build --author='jyapayne' --version='1.0.0' examples/accounts/account_ex.nim"
 
 #before install:
 #  setupTask()

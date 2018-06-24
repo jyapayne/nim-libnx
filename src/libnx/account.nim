@@ -6,6 +6,13 @@ import libnx/service
 
 type
   AccountError* = object of Exception
+  AccountInitError* = object of AccountError
+  AccountImageSizeError* = object of AccountError
+  AccountUserProfileError* = object of AccountError
+  AccountUserNotSelectedError* = object of AccountError
+  AccountUserDataError* = object of AccountError
+  AccountActiveUserError* = object of AccountError
+  AccountImageLoadError* = object of AccountError
 
   User* = ref object
     id*: u128
@@ -25,41 +32,41 @@ type
 
 var enabled = false
 
-template raiseEx(message: string) =
-  raise newException(AccountError, message)
+template raiseEx(ty: untyped, message: string) =
+  raise newException(ty, message)
 
 proc getService*(): Service =
   let serv = accountGetService()[]
   result = newService(serv)
 
-proc init() =
+proc init*() =
   let service = getService()
   if service.isActive:
     return
 
   let code = accountInitialize().newResult
   if code.failed:
-    raiseEx("Error, account api could not be initialized: " & code.description)
+    raiseEx(AccountInitError, "Error, account api could not be initialized: " & code.description)
+  enabled = true
 
-proc exit() =
+proc exit*() =
   let service = getService()
   if not service.isActive:
     return
   accountExit()
+  enabled = false
 
 proc close*(profile: AccountProfile) =
   accountProfileClose(profile.unsafeAddr)
 
-template withAccountService*(code: untyped): typed =
-  enabled = true
+template withAccountService*(code: typed): typed =
   init()
   code
   exit()
-  enabled = false
 
 proc ensureEnabled() =
   if not enabled:
-    raiseEx("Use withAccountService to access account functions.")
+    raiseEx(AccountError, "Use withAccountService to access account functions.")
 
 proc getImageSize*(profile: AccountProfile): int =
   ensureEnabled()
@@ -67,7 +74,7 @@ proc getImageSize*(profile: AccountProfile): int =
   result = 0
   let code = accountProfileGetImageSize(profile.unsafeAddr, res.addr).newResult
   if code.failed:
-    raiseEx("Error, image size could not be received: " & code.description)
+    raiseEx(AccountImageSizeError, "Error, could not get image size: " & code.description)
   result = res.int
 
 proc imageSize*(user: User): int =
@@ -76,7 +83,7 @@ proc imageSize*(user: User): int =
   let res = accountProfileGetImageSize(prof.addr, size.addr).newResult
 
   if res.failed:
-    raiseEx("Error, could not get image size: " & res.description)
+    raiseEx(AccountImageSizeError, "Error, could not get image size: " & res.description)
 
   result = size.int
 
@@ -84,7 +91,7 @@ proc getProfileHelper(userID: u128): AccountProfile =
   let res = accountGetProfile(result.addr, userID).newResult
 
   if res.failed:
-    raiseEx("Error, could not get user profile: " & res.description)
+    raiseEx(AccountUserProfileError, "Error, could not get user profile: " & res.description)
 
 
 proc loadImage*(user: User): AccountImage =
@@ -104,24 +111,27 @@ proc loadImage*(user: User): AccountImage =
 
   if res.failed:
     prof.close()
-    raiseEx("Error, could not load image: " & res.description)
+    raiseEx(AccountImageLoadError, "Error, could not load image: " & res.description)
 
   prof.close()
+
+proc userID*(user: User): string =
+  $user.id
 
 proc getActiveUser*(): User =
   ensureEnabled()
   result = new(User)
   var
-    userID: u128
+    userID: u128 = newUInt128(0,0)
     selected: bool
 
   var res = accountGetActiveUser(userID.addr, selected.addr).newResult
 
   if res.failed:
-    raiseEx("Error, could not get active user ID: " & res.description)
+    raiseEx(AccountActiveUserError, "Error, could not get active user ID: " & res.description)
 
   if not selected:
-    raiseEx("No user currently selected!")
+    raiseEx(AccountUserNotSelectedError, "No user currently selected!")
 
   result.id = userID
   result.selected = selected
@@ -134,7 +144,7 @@ proc getActiveUser*(): User =
   res = accountProfileGet(prof.addr, userData.addr, profBase.addr).newResult
 
   if res.failed:
-    raiseEx("Error, could not get user data: " & res.description)
+    raiseEx(AccountUserDataError, "Error, could not get user data: " & res.description)
 
   result.username = profBase.username.join("")
   result.lastEdited = profBase.lastEditTimestamp
@@ -152,7 +162,10 @@ proc getProfile*(user: User): Profile =
 
   let res = accountGetProfile(prof.addr, user.id).newResult
   if res.failed:
-    raiseEx("Error, could not get account profile: " & res.description)
+    raiseEx(
+      AccountUserProfileError,
+      "Error, could not get account profile: " & res.description
+    )
 
   result.service = newService(prof.s)
   prof.close()

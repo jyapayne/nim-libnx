@@ -377,4 +377,3 @@ proc `$`*(val: u128): string =
     str.add(char(48 + digit))
 
   result = str
-

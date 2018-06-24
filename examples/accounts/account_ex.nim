@@ -3,6 +3,7 @@ import libnx/wrapper/hid
 import libnx/wrapper/console
 import libnx/account
 import libnx/utils
+import libnx/wrapper/types
 
 proc main() =
   gfxInitDefault()
@@ -13,11 +14,16 @@ proc main() =
   withAccountService:
     try:
       let user = getActiveUser()
-      echo "\x1b[6;2HUsername: " & user.username
-      echo "\x1b[7;2HMiiID: " & $user.miiID
-      echo "\x1b[8;2HIconID: " & $user.iconID
-    except AccountError:
+      let userID = user.id
+      echo "\x1b[6;2HUserID: 0x" & userID.toHex()
+      echo "\x1b[7;2HUsername: " & user.username
+      echo "\x1b[8;2HMiiID: " & $user.miiID
+      echo "\x1b[9;2HIconID: " & $user.iconID
+    except AccountUserNotSelectedError:
       echo "\x1b[6;2HNo user currently selected!"
+    except AccountError:
+      let msg = getCurrentExceptionMsg()
+      echo "\x1b[6;2H" & msg
 
   mainLoop:
     let keysDown = hidKeysDown(CONTROLLER_P1_AUTO)
