@@ -120,7 +120,7 @@ type
     KEY_RSTICK_UP = BIT(21),    ## /< Right Stick Up
     KEY_UP = KEY_DUP.int or KEY_LSTICK_UP.int or KEY_RSTICK_UP.int, ## /< D-Pad Up or Sticks Up
     KEY_RSTICK_RIGHT = BIT(22), ## /< Right Stick Right
-    KEY_RIGHT = KEY_DRIGHT.int or KEY_LSTICK_RIGHT.int or KEY_RSTICK_RIGHT.int ## /< D-Pad Right or Sticks Right
+    KEY_RIGHT = KEY_DRIGHT.int or KEY_LSTICK_RIGHT.int or KEY_RSTICK_RIGHT.int, ## /< D-Pad Right or Sticks Right
     KEY_RSTICK_DOWN = BIT(23),  ## /< Right Stick Down
     KEY_DOWN = KEY_DDOWN.int or KEY_LSTICK_DOWN.int or KEY_RSTICK_DOWN.int, ## /< D-Pad Down or Sticks Down
     KEY_SL = BIT(24),           ## /< SL
