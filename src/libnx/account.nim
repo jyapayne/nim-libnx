@@ -2,7 +2,9 @@ import strutils
 import libnx/wrapper/acc
 import libnx/results
 import libnx/wrapper/types
+import libnx/ext/integer128
 import libnx/service
+import libnx/utils
 
 type
   AccountError* = object of Exception
@@ -32,9 +34,6 @@ type
 
 var enabled = false
 
-template raiseEx(ty: untyped, message: string) =
-  raise newException(ty, message)
-
 proc getService*(): Service =
   let serv = accountGetService()[]
   result = newService(serv)
@@ -46,7 +45,10 @@ proc init*() =
 
   let code = accountInitialize().newResult
   if code.failed:
-    raiseEx(AccountInitError, "Error, account api could not be initialized: " & code.description)
+    raiseEx(
+      AccountInitError,
+      "Error, account api could not be initialized: " & code.description
+    )
   enabled = true
 
 proc exit*() =
@@ -59,7 +61,7 @@ proc exit*() =
 proc close*(profile: AccountProfile) =
   accountProfileClose(profile.unsafeAddr)
 
-template withAccountService*(code: typed): typed =
+template withAccountService*(code: untyped): typed =
   init()
   code
   exit()

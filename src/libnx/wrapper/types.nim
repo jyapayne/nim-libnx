@@ -1,7 +1,7 @@
 import strutils
 import ospaths
 const headertypes = currentSourcePath().splitPath().head & "/nx/include/switch/types.h"
-include libnx/ext/integer128
+import libnx/ext/integer128
 template BIT*(n): auto = (1.uint shl n)
 type
   u8* = uint8

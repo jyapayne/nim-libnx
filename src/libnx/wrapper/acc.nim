@@ -1,6 +1,7 @@
 import strutils
 import ospaths
 const headeracc = currentSourcePath().splitPath().head & "/nx/include/switch/services/acc.h"
+import libnx/ext/integer128
 import libnx/wrapper/types
 import libnx/wrapper/sm
 type

@@ -1,6 +1,7 @@
 import strutils
 import ospaths
 const headerfs = currentSourcePath().splitPath().head & "/nx/include/switch/services/fs.h"
+import libnx/ext/integer128
 import libnx/wrapper/types
 import libnx/wrapper/sm
 const

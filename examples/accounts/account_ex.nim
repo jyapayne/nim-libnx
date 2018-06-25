@@ -1,12 +1,12 @@
-import libnx/wrapper/gfx
+import libnx/graphics
 import libnx/wrapper/hid
 import libnx/wrapper/console
+import libnx/ext/integer128
 import libnx/account
-import libnx/utils
-import libnx/wrapper/types
+import libnx/app
 
 proc main() =
-  gfxInitDefault()
+  initDefault()
   discard consoleInit(nil)
 
   echo "\x1b[5;2H" & "Account info:"

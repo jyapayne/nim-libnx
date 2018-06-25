@@ -1,10 +1,10 @@
-import libnx/wrapper/gfx
+import libnx/graphics
 import libnx/wrapper/console
 import libnx/wrapper/hid
-import libnx/utils
+import libnx/app
 
 proc main() =
-  gfxInitDefault()
+  initDefault()
   discard consoleInit(nil)
 
   echo "\x1b[17;20HHELLO FROM NIM"
