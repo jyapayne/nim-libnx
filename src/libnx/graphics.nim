@@ -136,7 +136,7 @@ proc resetCrop*() =
 ## / Wrapper for \ref gfxConfigureCrop. Use this to set the resolution, within the
 ## bounds of the maximum resolution. Use all-zero input to reset to default.
 proc setCropResolution*(width, height: uint32) =
-  gfxConfigureResolution(width.s32, height.s32)
+  setCrop(0, 0, width, height)
 
 ## / If enabled, \ref gfxConfigureResolution will be used with the input resolution for
 ## the current OperationMode. Then \ref gfxConfigureResolution will automatically be

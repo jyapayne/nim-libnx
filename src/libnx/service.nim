@@ -8,6 +8,8 @@ type
   Service* = ref object
     serv: sm.Service
 
+proc getSmService*(serv: Service): sm.Service =
+  serv.serv
 
 proc newService*(serv: sm.Service): Service =
   result = Service(serv: serv)
