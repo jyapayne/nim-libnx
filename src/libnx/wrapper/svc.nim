@@ -161,6 +161,15 @@ type
     ProcessState_DebugSuspended = 7 ## /<Process execution suspended by debugger.
 
 
+## / Debug Thread Parameters.
+
+type
+  DebugThreadParam* {.size: sizeof(cint).} = enum
+    DebugThreadParam_ActualPriority = 0, DebugThreadParam_State = 1,
+    DebugThreadParam_IdealCore = 2, DebugThreadParam_CurrentCore = 3,
+    DebugThreadParam_CoreMask = 4
+
+
 ## /@name Memory management
 ## /@{
 ## *
@@ -895,6 +904,15 @@ proc svcGetDebugThreadContext*(`out`: ptr uint8; debug: Handle; threadID: uint64
 
 proc svcGetProcessList*(num_out: ptr uint32; pids_out: ptr uint64; max_pids: uint32): Result {.
     cdecl, importc: "svcGetProcessList", header: headersvc.}
+## *
+##  @brief Retrieves a list of all threads for a debug handle (or zero).
+##  @return Result code.
+##  @note Syscall number 0x66.
+##  @warning This is a privileged syscall. Use \ref envIsSyscallHinted to check if it is available.
+## 
+
+proc svcGetThreadList*(num_out: ptr uint32; tids_out: ptr uint64; max_tids: uint32; debug: Handle): Result {.
+    cdecl, importc: "svcGetThreadList", header: headersvc.}
 ## /@}
 ## /@name Debugging
 ## /@{
@@ -926,6 +944,16 @@ proc svcReadDebugProcessMemory*(buffer: pointer; debug: Handle; `addr`: uint64; 
 
 proc svcWriteDebugProcessMemory*(debug: Handle; buffer: pointer; `addr`: uint64; size: uint64): Result {.
     cdecl, importc: "svcWriteDebugProcessMemory", header: headersvc.}
+## *
+##  @brief Gets parameters from a thread in a debugging session.
+##  @return Result code.
+##  @note Syscall number 0x6D.
+##  @warning This is a privileged syscall. Use \ref envIsSyscallHinted to check if it is available.
+## 
+
+proc svcGetDebugThreadParam*(out_64: ptr uint64; out_32: ptr uint32; debug: Handle;
+                            threadID: uint64; param: DebugThreadParam): Result {.
+    cdecl, importc: "svcGetDebugThreadParam", header: headersvc.}
 ## /@}
 ## /@name Miscellaneous
 ## /@{

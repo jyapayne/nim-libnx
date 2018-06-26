@@ -27,3 +27,10 @@ proc nsvmNeedsUpdateVulnerability*(`out`: ptr bool): Result {.cdecl,
     importc: "nsvmNeedsUpdateVulnerability", header: headerns.}
 proc nsvmGetSafeSystemVersion*(`out`: ptr uint16): Result {.cdecl,
     importc: "nsvmGetSafeSystemVersion", header: headerns.}
+proc nsdevInitialize*(): Result {.cdecl, importc: "nsdevInitialize",
+                               header: headerns.}
+proc nsdevExit*() {.cdecl, importc: "nsdevExit", header: headerns.}
+proc nsdevTerminateProcess*(pid: uint64): Result {.cdecl,
+    importc: "nsdevTerminateProcess", header: headerns.}
+proc nsdevTerminateProgram*(tid: uint64): Result {.cdecl,
+    importc: "nsdevTerminateProgram", header: headerns.}

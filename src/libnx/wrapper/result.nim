@@ -89,6 +89,8 @@ const
   LibnxError_IncompatSysVer* = 37
   LibnxError_InitFail_Time* = 38
   LibnxError_TooManyDevOpTabs* = 39
+  LibnxError_DomainMessageUnknownType* = 40
+  LibnxError_DomainMessageTooManyObjectIds* = 41
 
 ## / libnx nvidia error codes
 

@@ -47,6 +47,24 @@ type
     IpcCommandType_Close = 2, IpcCommandType_LegacyControl = 3,
     IpcCommandType_Request = 4, IpcCommandType_Control = 5,
     IpcCommandType_RequestWithContext = 6, IpcCommandType_ControlWithContext = 7
+  DomainMessageType* {.size: sizeof(cint).} = enum
+    DomainMessageType_Invalid = 0, DomainMessageType_SendMessage = 1,
+    DomainMessageType_Close = 2
+
+
+
+
+
+## / IPC domain message header.
+
+type
+  DomainMessageHeader* {.importc: "DomainMessageHeader", header: headeripc, bycopy.} = object
+    Type* {.importc: "Type".}: uint8
+    NumObjectIds* {.importc: "NumObjectIds".}: uint8
+    Length* {.importc: "Length".}: uint16
+    ThisObjectId* {.importc: "ThisObjectId".}: uint32
+    Pad* {.importc: "Pad".}: array[2, uint32]
+
   IpcCommand* {.importc: "IpcCommand", header: headeripc, bycopy.} = object
     NumSend* {.importc: "NumSend".}: csize ##  A
     NumRecv* {.importc: "NumRecv".}: csize ##  B
@@ -65,9 +83,6 @@ type
     Handles* {.importc: "Handles".}: array[IPC_MAX_OBJECTS, Handle]
     NumObjectIds* {.importc: "NumObjectIds".}: csize
     ObjectIds* {.importc: "ObjectIds".}: array[IPC_MAX_OBJECTS, uint32]
-
-
-
 
 
 ## *
@@ -236,6 +251,9 @@ type
     NumHandles* {.importc: "NumHandles".}: csize ## /< Number of handles copied.
     Handles* {.importc: "Handles".}: array[IPC_MAX_OBJECTS, Handle] ## /< Handles.
     WasHandleCopied* {.importc: "WasHandleCopied".}: array[IPC_MAX_OBJECTS, bool] ## /< true if the handle was moved, false if it was copied.
+    IsDomainMessage* {.importc: "IsDomainMessage".}: bool ## /< true if the the message is a Domain message.
+    MessageType* {.importc: "MessageType".}: DomainMessageType ## /< Type of the domain message.
+    MessageLength* {.importc: "MessageLength".}: uint32 ## /< Size of rawdata (for domain messages).
     ThisObjectId* {.importc: "ThisObjectId".}: uint32 ## /< Object ID to call the command on (for domain messages).
     NumObjectIds* {.importc: "NumObjectIds".}: csize ## /< Number of object IDs (for domain messages).
     ObjectIds* {.importc: "ObjectIds".}: array[IPC_MAX_OBJECTS, uint32] ## /< Object IDs (for domain messages).
@@ -300,17 +318,6 @@ proc ipcConvertSessionToDomain*(session: Handle; object_id_out: ptr uint32): Res
 
 proc ipcSendObjectId*(cmd: ptr IpcCommand; object_id: uint32) {.inline, cdecl,
     importc: "ipcSendObjectId", header: headeripc.}
-## / IPC domain message header.
-
-type
-  DomainMessageHeader* {.importc: "DomainMessageHeader", header: headeripc, bycopy.} = object
-    Type* {.importc: "Type".}: uint8
-    NumObjectIds* {.importc: "NumObjectIds".}: uint8
-    Length* {.importc: "Length".}: uint16
-    ThisObjectId* {.importc: "ThisObjectId".}: uint32
-    Pad* {.importc: "Pad".}: array[2, uint32]
-
-
 ## *
 ##  @brief Prepares the header of an IPC command structure (domain version).
 ##  @param cmd IPC command structure.
