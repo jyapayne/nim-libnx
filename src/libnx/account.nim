@@ -11,6 +11,8 @@ type
   AccountInitError* = object of AccountError
   AccountImageSizeError* = object of AccountError
   AccountUserProfileError* = object of AccountError
+  AccountUserCountError* = object of AccountError
+  AccountUserListError* = object of AccountError
   AccountUserNotSelectedError* = object of AccountError
   AccountUserDataError* = object of AccountError
   AccountActiveUserError* = object of AccountError
@@ -120,6 +122,32 @@ proc loadImage*(user: User): AccountImage =
 proc userID*(user: User): string =
   $user.id
 
+proc getUser*(userID: u128): User =
+  ensureEnabled()
+  result = new(User)
+
+  result.id = userID
+  result.selected = false
+
+  var
+    prof: AccountProfile = getProfileHelper(userID)
+    userData: AccountUserData
+    profBase: AccountProfileBase
+
+  let res = accountProfileGet(prof.addr, userData.addr, profBase.addr).newResult
+
+  if res.failed:
+    raiseEx(AccountUserDataError, "Error, could not get user data: " & res.description)
+
+  result.username = profBase.username.join("")
+  result.lastEdited = profBase.lastEditTimestamp
+  result.iconID = userData.iconID
+  result.iconBgColorID = userData.iconBackgroundColorID
+  result.miiID = userData.miiID
+
+  prof.close()
+
+
 proc getActiveUser*(): User =
   ensureEnabled()
   result = new(User)
@@ -171,3 +199,31 @@ proc getProfile*(user: User): Profile =
 
   result.service = newService(prof.s)
   prof.close()
+
+
+proc getUserCount*(): int32 =
+  var count: int32
+  let res = accountGetUserCount(count.addr).newResult
+  if res.failed:
+    raiseEx(
+      AccountUserCountError,
+      "Error, could not get user count: " & res.description
+    )
+  result = count
+
+
+proc listAllUsers*(): seq[User] =
+  result = @[]
+
+  let numUsers = getUserCount()
+  var userIDs: array[ACC_USER_LIST_SIZE, u128]
+  let res = accountListAllUsers(userIDs[0].addr).newResult
+
+  if res.failed:
+    raiseEx(
+      AccountUserListError,
+      "Error, could not list users: " & res.description
+    )
+
+  for i in 0 ..< numUsers:
+    result.add(getUser(userIDs[i]))

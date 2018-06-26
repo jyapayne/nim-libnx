@@ -109,19 +109,26 @@ proc newResult*(code: uint32): Result =
   let resCode = MAKERESULT(moduleCode, descCode)
 
   var description = ""
-
-  case module
-  of Module.Invalid:
-    discard
-  of Module.Kernel:
-    result.kernelError = KernelError(resCode)
-    description = $result.kernelError
-  of Module.Libnx:
-    result.libnxError = LibnxError(resCode)
-    description = $result.libnxError
-  of Module.LibnxNvidia:
-    result.libnxNvidiaError = LibnxNvidiaError(resCode)
-    description = $result.libnxNvidiaError
+  try:
+    case module
+    of Module.Invalid:
+      discard
+    of Module.Kernel:
+      result.kernelError = KernelError(resCode)
+      description = $result.kernelError
+    of Module.Libnx:
+      result.libnxError = LibnxError(resCode)
+      description = $result.libnxError
+    of Module.LibnxNvidia:
+      result.libnxNvidiaError = LibnxNvidiaError(resCode)
+      description = $result.libnxNvidiaError
+  except:
+    echo "Converting to result failed: " & getCurrentExceptionMsg()
+    echo "Code: " & $code
+    echo "ModuleCode: " & $moduleCode
+    echo "Module: " & $module
+    echo "DescCode: " & $descCode
+    echo "ResultCode: " & $resCode
 
   result.module = $module
   result.description = description

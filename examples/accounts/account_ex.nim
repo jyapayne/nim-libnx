@@ -1,8 +1,10 @@
+import sets, strutils
 import libnx/graphics
 import libnx/wrapper/hid
 import libnx/wrapper/console
 import libnx/ext/integer128
 import libnx/account
+import libnx/input
 import libnx/app
 
 proc main() =
@@ -25,10 +27,22 @@ proc main() =
       let msg = getCurrentExceptionMsg()
       echo "\x1b[6;2H" & msg
 
-  mainLoop:
-    let keysDown = hidKeysDown(CONTROLLER_P1_AUTO)
+    try:
+      let users = listAllUsers()
+      echo ""
+      echo " There are $# users:" % $users.len()
+      for user in users:
+        echo " User: " & user.username
+    except AccountUserListError:
+      let msg = getCurrentExceptionMsg()
+      echo msg
 
-    if (keysDown and KEY_PLUS.uint64) > 0.uint64:
+
+
+  mainLoop:
+    let keysDown = keysDown(Controller.P1_AUTO)
+
+    if ControllerKey.Plus in keysDown:
       break
 
 main()
