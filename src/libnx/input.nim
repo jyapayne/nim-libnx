@@ -177,13 +177,13 @@ proc setControllerLayout*(id: Controller, layoutType: ControllerLayoutType) =
 proc getControllerLayout*(id: Controller): ControllerLayoutType =
   hidGetControllerLayout(HidControllerID(id)).ControllerLayoutType
 
-proc scanInput*() = scanInput()
+proc scanInput*() = hidScanInput()
 
 proc keysHeld*(id: Controller): HashSet[ControllerKey] =
   result = initSet[ControllerKey]()
 
   var raw = hidKeysHeld(HidControllerID(id))
-  for i in ControllerKey.low.int ..< ControllerKey.size:
+  for i in 0 ..< ControllerKey.size:
     let bit = raw and 0x1
     if bit == 1:
       result.incl(ControllerKey(BIT(i)))
@@ -193,7 +193,7 @@ proc keysDown*(id: Controller): HashSet[ControllerKey] =
   result = initSet[ControllerKey]()
 
   var raw = hidKeysDown(HidControllerID(id))
-  for i in ControllerKey.low.int ..< ControllerKey.size:
+  for i in 0 ..< ControllerKey.size:
     let bit = raw and 0x1
     if bit == 1:
       result.incl(ControllerKey(BIT(i)))
@@ -203,7 +203,7 @@ proc keysUp*(id: Controller): HashSet[ControllerKey] =
   result = initSet[ControllerKey]()
 
   var raw = hidKeysUp(HidControllerID(id))
-  for i in ControllerKey.low.int ..< ControllerKey.size:
+  for i in 0 ..< ControllerKey.size:
     let bit = raw and 0x1
     if bit == 1:
       result.incl(ControllerKey(BIT(i)))
@@ -213,7 +213,7 @@ proc mouseButtonsHeld*(): HashSet[MouseButton] =
   result = initSet[MouseButton]()
 
   var raw = hidMouseButtonsHeld()
-  for i in MouseButton.low.int ..< MouseButton.size:
+  for i in 0 ..< MouseButton.size:
     let bit = raw and 0x1
     if bit == 1:
       result.incl(MouseButton(BIT(i)))
@@ -224,7 +224,7 @@ proc mouseButtonsDown*(): HashSet[MouseButton] =
   result = initSet[MouseButton]()
 
   var raw = hidMouseButtonsDown()
-  for i in MouseButton.low.int ..< MouseButton.size:
+  for i in 0 ..< MouseButton.size:
     let bit = raw and 0x1
     if bit == 1:
       result.incl(MouseButton(BIT(i)))
@@ -234,7 +234,7 @@ proc mouseButtonsUp*(): HashSet[MouseButton] =
   result = initSet[MouseButton]()
 
   var raw = hidMouseButtonsUp()
-  for i in MouseButton.low.int ..< MouseButton.size:
+  for i in 0 ..< MouseButton.size:
     let bit = raw and 0x1
     if bit == 1:
       result.incl(MouseButton(BIT(i)))

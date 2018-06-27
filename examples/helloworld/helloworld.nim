@@ -1,7 +1,9 @@
+import sets
 import libnx/graphics
 import libnx/wrapper/console
 import libnx/wrapper/hid
 import libnx/app
+import libnx/input
 
 proc main() =
   initDefault()
@@ -9,9 +11,12 @@ proc main() =
 
   echo "\x1b[17;20HHELLO FROM NIM"
   mainLoop:
-    let keysDown = hidKeysDown(CONTROLLER_P1_AUTO)
+    let keysDown = keysDown(Controller.P1_AUTO)
 
-    if (keysDown and KEY_PLUS.uint64) > 0.uint64:
+    if keysDown.len() > 0:
+      echo keysDown
+
+    if ControllerKey.Plus in keysDown:
       break
 
 main()
