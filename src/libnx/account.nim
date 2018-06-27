@@ -215,9 +215,15 @@ proc getUserCount*(): int32 =
 proc listAllUsers*(): seq[User] =
   result = @[]
 
-  let numUsers = getUserCount()
-  var userIDs: array[ACC_USER_LIST_SIZE, u128]
-  let res = accountListAllUsers(userIDs[0].addr).newResult
+  var
+    userIDs: array[ACC_USER_LIST_SIZE, u128]
+    usersReturned: csize
+
+  let res = accountListAllUsers(
+    userIDs[0].addr,
+    ACC_USER_LIST_SIZE,
+    usersReturned.addr
+  ).newResult
 
   if res.failed:
     raiseEx(
@@ -225,5 +231,5 @@ proc listAllUsers*(): seq[User] =
       "Error, could not list users: " & res.description
     )
 
-  for i in 0 ..< numUsers:
+  for i in 0 ..< usersReturned.int:
     result.add(getUser(userIDs[i]))
