@@ -82,6 +82,7 @@ proc getImageSize*(profile: AccountProfile): int =
   result = res.int
 
 proc imageSize*(user: User): int =
+  ensureEnabled()
   var prof: AccountProfile
   var size: csize
   let res = accountProfileGetImageSize(prof.addr, size.addr).newResult
@@ -202,6 +203,7 @@ proc getProfile*(user: User): Profile =
 
 
 proc getUserCount*(): int32 =
+  ensureEnabled()
   var count: int32
   let res = accountGetUserCount(count.addr).newResult
   if res.failed:
@@ -213,6 +215,7 @@ proc getUserCount*(): int32 =
 
 
 proc listAllUsers*(): seq[User] =
+  ensureEnabled()
   result = @[]
 
   var

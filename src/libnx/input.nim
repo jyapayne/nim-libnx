@@ -287,7 +287,7 @@ proc getHandheldMode*(): bool =
 ## and CONTROLLER_PLAYER_2 for example).
 ## / id must be CONTROLLER_PLAYER_*.
 proc setJoyConModeSingle*(id: Controller): Result =
-  if not (id in {Controller.Player1 .. Controller.Player8}):
+  if id notin {Controller.Player1 .. Controller.Player8}:
     raiseEx(ControllerSelectError, "Must be controller 1-8")
   hidSetNpadJoyAssignmentModeSingleByDefault(id.HidControllerId).newResult
 
@@ -299,7 +299,7 @@ proc setJoyConModeSingle*(id: Controller): Result =
 ## and CONTROLLER_PLAYER_2 for example).
 ## / id must be CONTROLLER_PLAYER_*.
 proc setJoyconModeDual*(id: Controller): Result =
-  if not (id in {Controller.Player1 .. Controller.Player8}):
+  if id notin {Controller.Player1 .. Controller.Player8}:
     raiseEx(ControllerSelectError, "Must be controller 1-8")
   hidSetNpadJoyAssignmentModeDual(id.HidControllerId).newResult
 
