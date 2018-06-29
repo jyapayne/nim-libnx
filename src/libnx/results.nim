@@ -106,7 +106,6 @@ proc newResult*(code: uint32): Result =
   result.kind = module
 
   let descCode = code.R_DESCRIPTION
-  let resCode = MAKERESULT(moduleCode, descCode)
 
   var description = ""
   try:
@@ -114,13 +113,13 @@ proc newResult*(code: uint32): Result =
     of Module.Invalid:
       discard
     of Module.Kernel:
-      result.kernelError = KernelError(resCode)
+      result.kernelError = KernelError(descCode)
       description = $result.kernelError
     of Module.Libnx:
-      result.libnxError = LibnxError(resCode)
+      result.libnxError = LibnxError(descCode)
       description = $result.libnxError
     of Module.LibnxNvidia:
-      result.libnxNvidiaError = LibnxNvidiaError(resCode)
+      result.libnxNvidiaError = LibnxNvidiaError(descCode)
       description = $result.libnxNvidiaError
   except:
     echo "Converting to result failed: " & getCurrentExceptionMsg()
@@ -128,7 +127,6 @@ proc newResult*(code: uint32): Result =
     echo "ModuleCode: " & $moduleCode
     echo "Module: " & $module
     echo "DescCode: " & $descCode
-    echo "ResultCode: " & $resCode
 
   result.module = $module
   result.description = description
