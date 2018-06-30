@@ -8,7 +8,7 @@ import libnx/input
 import libnx/app
 
 proc main() =
-  initDefault()
+  graphics.initDefault()
   discard consoleInit(nil)
 
   echo "\x1b[5;2H" & "Account info:"
@@ -41,6 +41,9 @@ proc main() =
 
   mainLoop:
     let keysDown = keysDown(Controller.P1_AUTO)
+
+    if keysDown.len() > 0:
+      echo keysDown
 
     if ControllerKey.Plus in keysDown:
       break
