@@ -20,3 +20,6 @@ tags
 build
 *.elf
 wrapper
+
+nimcache/
+nimcache*/
