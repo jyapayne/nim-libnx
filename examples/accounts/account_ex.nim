@@ -1,7 +1,6 @@
 import sets, strutils
 import libnx/graphics
-import libnx/wrapper/hid
-import libnx/wrapper/console
+import libnx/wrapper/con
 import libnx/ext/integer128
 import libnx/account
 import libnx/input
@@ -36,7 +35,6 @@ proc main() =
     except AccountUserListError:
       let msg = getCurrentExceptionMsg()
       echo msg
-
 
 
   mainLoop:

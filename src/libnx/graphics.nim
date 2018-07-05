@@ -54,14 +54,20 @@ var enabled = false
 proc initDefault*() =
   if not enabled:
     gfxInitDefault()
-  enabled = true
+    enabled = true
 
 ## *
 ##  @brief Uninitializes the graphics subsystem.
 ##  @warning Do not use \ref viExit when using this function.
 ##
 proc exit*() =
+  # XXX Important!!! This deallocHeap call must be here
+  # in order for the switch not to crash. It must be run right
+  # before gfxExit() to leave a clean slate in the OS. This call
+  # will disable any further allocations and free all consumed
+  # memory on the heap.
   if enabled:
+    deallocHeap(runFinalizers = true, allowGcAfterwards = false)
     gfxExit()
     enabled = false
 

@@ -1,9 +1,10 @@
 import sets
 import libnx/graphics
-import libnx/wrapper/console
+import libnx/wrapper/con
 import libnx/wrapper/hid
 import libnx/app
 import libnx/input
+
 
 proc main() =
   initDefault()
