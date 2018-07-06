@@ -1,6 +1,6 @@
 import sets, strutils
 import libnx/graphics
-import libnx/wrapper/con
+import libnx/console
 import libnx/ext/integer128
 import libnx/account
 import libnx/input
@@ -8,40 +8,42 @@ import libnx/app
 
 proc main() =
   graphics.initDefault()
-  discard consoleInit(nil)
+  console.init()
 
-  echo "\x1b[5;2H" & "Account info:"
+  printAt (5, 2), "Account info:"
 
   withAccountService:
     try:
-      let user = getActiveUser()
-      let userID = user.id
-      echo "\x1b[6;2HUserID: 0x" & userID.toHex()
-      echo "\x1b[7;2HUsername: " & user.username
-      echo "\x1b[8;2HMiiID: " & $user.miiID
-      echo "\x1b[9;2HIconID: " & $user.iconID
+      let
+        user = getActiveUser()
+        userID = user.id
+
+      print "UserID: 0x" & userID.toHex()
+      print "Username: " & user.username
+      print "MiiID: " & $user.miiID
+      print "IconID: " & $user.iconID
     except AccountUserNotSelectedError:
-      echo "\x1b[6;2HNo user currently selected!"
+      print "No user currently selected!"
     except AccountError:
       let msg = getCurrentExceptionMsg()
-      echo "\x1b[6;2H" & msg
+      print msg
 
     try:
       let users = listAllUsers()
-      echo ""
-      echo " There are $# users:" % $users.len()
+      print ""
+      print "There are $# users:" % $users.len()
       for user in users:
-        echo " User: " & user.username
+        print "User: " & user.username
     except AccountUserListError:
       let msg = getCurrentExceptionMsg()
-      echo msg
+      print msg
 
 
   mainLoop:
     let keysDown = keysDown(Controller.P1_AUTO)
 
     if keysDown.len() > 0:
-      echo keysDown
+      print keysDown
 
     if ControllerKey.Plus in keysDown:
       break

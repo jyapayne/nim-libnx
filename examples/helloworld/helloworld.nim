@@ -1,6 +1,6 @@
 import sets
 import libnx/graphics
-import libnx/wrapper/con
+import libnx/console
 import libnx/wrapper/hid
 import libnx/app
 import libnx/input
@@ -8,9 +8,9 @@ import libnx/input
 
 proc main() =
   initDefault()
-  discard consoleInit(nil)
+  console.init()
 
-  echo "\x1b[17;20HHELLO FROM NIM"
+  printAt (17, 20), "HELLO FROM NIM"
   mainLoop:
     let keysDown = keysDown(Controller.P1_AUTO)
 
