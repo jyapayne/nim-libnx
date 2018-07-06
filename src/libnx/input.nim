@@ -22,7 +22,11 @@ export JOYSTICK_MAX, JOYSTICK_MIN
 type
   InputError* = object of Exception
   ControllerSelectError* = object of InputError
+  VibrationError* = object of InputError
+  VibrationInitError* = object of InputError
+  ControllerMergeError* = object of InputError
 
+  ####################### Shared memory data ################################
   TouchScreenHeader* = ref object
     timestampTicks*: uint64
     numEntries*: uint64
@@ -150,64 +154,83 @@ type
     controllerSerials*: Buffer[uint8]
     controllers*: Buffer[ControllerSection]
 
-  VibrationDeviceInfo* = ref object
-    unk_x0*: uint32
-    unk_x4*: uint32 ## /< 0x1 for left-joycon, 0x2 for right-joycon.
+  ####################### END Shared memory data ################################
 
-  VibrationValue* = ref object
-    ampLow*: float ## /< Low Band amplitude. 1.0f: Max amplitude.
-    freqLow*: float ## /< Low Band frequency in Hz.
-    ampHigh*: float ## /< High Band amplitude. 1.0f: Max amplitude.
-    freqHigh*: float ## /< High Band frequency in Hz.
+  VibrationDeviceInfo* = HidVibrationDeviceInfo
+
+  VibrationValue* = HidVibrationValue
+
+  VibrationDevice* = uint32
+
+  JoyconMode {.pure.} = enum
+    Single, Dual
 
 
 proc init*(): Result = hidInitialize().newResult
 proc exit*() = hidExit()
 proc reset*() = hidReset()
 
+
 proc getSessionService*(): Service =
   newService(hidGetSessionService()[])
+
 
 proc getSharedMemory*(): ptr HidSharedMemory =
   result = cast[ptr HidSharedMemory](hidGetSharedMemAddr())
 
-proc setControllerLayout*(id: Controller, layoutType: ControllerLayoutType) =
-  hidSetControllerLayout(HidControllerID(id), HidControllerLayoutType(layoutType))
 
-proc getControllerLayout*(id: Controller): ControllerLayoutType =
-  hidGetControllerLayout(HidControllerID(id)).ControllerLayoutType
+proc `layout=`*(controller: Controller, layoutType: ControllerLayoutType) =
+  hidSetControllerLayout(
+    HidControllerID(controller),
+    HidControllerLayoutType(layoutType)
+  )
 
-proc scanInput*() = hidScanInput()
 
-proc keysHeld*(id: Controller): HashSet[ControllerKey] =
+proc layout*(controller: Controller): ControllerLayoutType =
+  hidGetControllerLayout(HidControllerID(controller)).ControllerLayoutType
+
+
+proc scanInput*() =
+  ## Call this once per frame to make the rest of the procs
+  ## in here poll controller data
+  hidScanInput()
+
+
+proc keysHeld*(controller: Controller): HashSet[ControllerKey] =
+  ## Gets the keys held by the `controller`
   result = initSet[ControllerKey]()
 
-  var raw = hidKeysHeld(HidControllerID(id))
+  var raw = hidKeysHeld(HidControllerID(controller))
   for i in 0 ..< ControllerKey.size:
     let bit = raw and 0x1
     if bit == 1:
       result.incl(ControllerKey(BIT(i)))
     raw = raw shr 1
 
-proc keysDown*(id: Controller): HashSet[ControllerKey] =
+
+proc keysDown*(controller: Controller): HashSet[ControllerKey] =
+  ## Gets the keys that are pressed at the moment by the `controller`
   result = initSet[ControllerKey]()
 
-  var raw = hidKeysDown(HidControllerID(id))
+  var raw = hidKeysDown(HidControllerID(controller))
   for i in 0 ..< ControllerKey.size:
     let bit = raw and 0x1
     if bit == 1:
       result.incl(ControllerKey(BIT(i)))
     raw = raw shr 1
 
-proc keysUp*(id: Controller): HashSet[ControllerKey] =
+
+proc keysUp*(controller: Controller): HashSet[ControllerKey] =
+  ## Gets the keys that are not pressed at the moment by the `controller`
   result = initSet[ControllerKey]()
 
-  var raw = hidKeysUp(HidControllerID(id))
+  var raw = hidKeysUp(HidControllerID(controller))
   for i in 0 ..< ControllerKey.size:
     let bit = raw and 0x1
     if bit == 1:
       result.incl(ControllerKey(BIT(i)))
     raw = raw shr 1
+
 
 proc mouseButtonsHeld*(): HashSet[MouseButton] =
   result = initSet[MouseButton]()
@@ -240,107 +263,224 @@ proc mouseButtonsUp*(): HashSet[MouseButton] =
       result.incl(MouseButton(BIT(i)))
     raw = raw shr 1
 
-proc mouseRead*(): MousePosition =
-  var pos: ptr MousePosition
-  hidMouseRead(pos)
-  result = pos[]
+
+proc readMouse*(): MousePosition =
+  hidMouseRead(result.addr)
+
 
 proc keyboardModifierHeld*(modifier: KeyboardModifier): bool =
   hidKeyboardModifierHeld(modifier.HidKeyboardModifier)
 
+
 proc keyboardModifierDown*(modifier: KeyboardModifier): bool =
   hidKeyboardModifierDown(modifier.HidKeyboardModifier)
+
 
 proc keyboardModifierUp*(modifier: KeyboardModifier): bool =
   hidKeyboardModifierUp(modifier.HidKeyboardModifier)
 
+
 proc keyboardHeld*(key: KeyboardKey): bool =
   hidKeyboardHeld(key.HidKeyboardScancode)
+
 
 proc keyboardDown*(key: KeyboardKey): bool =
   hidKeyboardDown(key.HidKeyboardScancode)
 
+
 proc keyboardUp*(key: KeyboardKey): bool =
   hidKeyboardUp(key.HidKeyboardScancode)
+
+
+proc keyboardKeysDown*(): HashSet[KeyboardKey] =
+  ## Get all keyboard keys currently down, excluding modifiers
+  result = initSet[KeyboardKey]()
+
+  for i in KeyboardKey.low..KeyboardKey.high:
+    let key = KeyboardKey(i)
+    if keyboardDown(key):
+      result.incl(key)
+
+
+proc keyboardKeysUp*(): HashSet[KeyboardKey] =
+  ## Get all keyboard keys currently up, excluding modifiers
+  result = initSet[KeyboardKey]()
+
+  for i in KeyboardKey.low..KeyboardKey.high:
+    let key = KeyboardKey(i)
+    if keyboardUp(key):
+      result.incl(key)
+
+
+proc keyboardKeysHeld*(): HashSet[KeyboardKey] =
+  ## Get all keyboard keys currently held, excluding modifiers
+  result = initSet[KeyboardKey]()
+
+  for i in KeyboardKey.low..KeyboardKey.high:
+    let key = KeyboardKey(i)
+    if keyboardHeld(key):
+      result.incl(key)
+
+
+proc keyboardModifiersHeld*(): HashSet[KeyboardModifier] =
+  ## Get all keyboard modifiers currently held
+  result = initSet[KeyboardModifier]()
+
+  for i in 0..KeyboardModifier.size:
+    let key = KeyboardModifier(BIT(i))
+    if keyboardModifierHeld(key):
+      result.incl(key)
+
+
+proc keyboardModifiersDown*(): HashSet[KeyboardModifier] =
+  ## Get all keyboard modifiers currently down
+  result = initSet[KeyboardModifier]()
+
+  for i in 0..KeyboardModifier.size:
+    let key = KeyboardModifier(BIT(i))
+    if keyboardModifierDown(key):
+      result.incl(key)
+
+proc keyboardModifiersUp*(): HashSet[KeyboardModifier] =
+  ## Get all keyboard modifiers currently up
+  result = initSet[KeyboardModifier]()
+
+  for i in 0..KeyboardModifier.size:
+    let key = KeyboardModifier(BIT(i))
+    if keyboardModifierUp(key):
+      result.incl(key)
+
 
 proc touchCount*(): uint32 =
   hidTouchCount()
 
-proc touchRead*(pointId: uint32): TouchPosition =
-  var touch: ptr TouchPosition
-  hidTouchRead(touch, pointId)
-  result = touch[]
 
-proc joystickRead*(id: Controller, stick: ControllerJoystick): JoystickPosition =
-  var pos: ptr JoystickPosition
-  hidJoystickRead(pos, id.HidControllerID, stick.HidControllerJoystick)
-  result = pos[]
+proc readTouch*(pointId: uint32): TouchPosition =
+  hidTouchRead(result.addr, pointId)
 
-## / This can be used to check what CONTROLLER_P1_AUTO uses.
-## / Returns 0 when CONTROLLER_PLAYER_1 is connected, otherwise returns 1 for
-## handheld-mode.
-proc getHandheldMode*(): bool =
+
+proc readJoystick*(id: Controller, stick: ControllerJoystick): JoystickPosition =
+  hidJoystickRead(result.addr, id.HidControllerID, stick.HidControllerJoystick)
+
+
+proc isHandheldMode*(): bool =
+  ## / This can be used to check what CONTROLLER_P1_AUTO uses.
+  ## / Returns 0 when CONTROLLER_PLAYER_1 is connected, otherwise returns 1 for
+  ## handheld-mode.
   hidGetHandheldMode()
 
-## / Use this if you want to use a single joy-con as a dedicated CONTROLLER_PLAYER_*.
-## / When used, both joy-cons in a pair should be used with this (CONTROLLER_PLAYER_1
-## and CONTROLLER_PLAYER_2 for example).
-## / id must be CONTROLLER_PLAYER_*.
-proc setJoyConModeSingle*(id: Controller): Result =
+
+proc `joyconMode=`*(id: Controller, mode: JoyconMode) =
+  ## Sets the joycon mode to either single or dual
   if id notin {Controller.Player1 .. Controller.Player8}:
     raiseEx(ControllerSelectError, "Must be controller 1-8")
-  hidSetNpadJoyAssignmentModeSingleByDefault(id.HidControllerId).newResult
 
-## / Use this if you want to use a pair of joy-cons as a single CONTROLLER_PLAYER_*.
-## Only necessary if you want to use this mode in your application after \ref
-## hidSetNpadJoyAssignmentModeSingleByDefault was used with this pair of joy-cons.
-## / Used automatically during app startup/exit for all controllers.
-## / When used, both joy-cons in a pair should be used with this (CONTROLLER_PLAYER_1
-## and CONTROLLER_PLAYER_2 for example).
-## / id must be CONTROLLER_PLAYER_*.
-proc setJoyconModeDual*(id: Controller): Result =
-  if id notin {Controller.Player1 .. Controller.Player8}:
-    raiseEx(ControllerSelectError, "Must be controller 1-8")
-  hidSetNpadJoyAssignmentModeDual(id.HidControllerId).newResult
+  var rc: Result
 
-## / Merge two single joy-cons into a dual-mode controller. Use this after \ref
-## hidSetNpadJoyAssignmentModeDual, when \ref hidSetNpadJoyAssignmentModeSingleByDefault
-## was previously used (this includes using this manually at application exit).
-proc mergeSingleJoyAsDualJoy*(id1: Controller; id2: Controller): Result =
-  hidMergeSingleJoyAsDualJoy(id1.HidControllerID, id2.HidControllerId).newResult
+  case mode:
+    of JoyconMode.Single:
+      rc = hidSetNpadJoyAssignmentModeSingleByDefault(id.HidControllerId).newResult
+    of JoyconMode.Dual:
+      rc = hidSetNpadJoyAssignmentModeDual(id.HidControllerId).newResult
+
+  if rc.failed:
+    raiseEx(ControllerMergeError, "Could not set joycon mode to " & $mode, rc)
 
 
-proc initializeVibrationDevices*(VibrationDeviceHandles: ptr uint32;
-                                   total_handles: csize; id: HidControllerID;
-                                   `type`: HidControllerType): Result =
-  discard
+proc mergeJoycons*(id1: Controller; id2: Controller) =
+  ## / Merge two single joy-cons into a dual-mode controller. Use this after \ref
+  ## hidSetNpadJoyAssignmentModeDual, when \ref hidSetNpadJoyAssignmentModeSingleByDefault
+  ## was previously used (this includes using this manually at application exit).
+  let rc = hidMergeSingleJoyAsDualJoy(
+    id1.HidControllerID,
+    id2.HidControllerID
+  ).newResult
 
-## / Gets HidVibrationDeviceInfo for the specified VibrationDeviceHandle.
-proc getVibrationDeviceInfo*(VibrationDeviceHandle: ptr uint32;
-                               VibrationDeviceInfo: ptr HidVibrationDeviceInfo): Result =
-  newResult(0)
+  if rc.failed:
+    raiseEx(ControllerMergeError, "Could not merge joycons", rc)
 
-## / Send the VibrationValue to the specified VibrationDeviceHandle.
-proc sendVibrationValue*(VibrationDeviceHandle: ptr uint32;
-                           VibrationValue: ptr HidVibrationValue): Result =
-  discard
 
-## / Gets the current HidVibrationValue for the specified VibrationDeviceHandle.
-proc getActualVibrationValue*(VibrationDeviceHandle: ptr uint32;
-                                VibrationValue: ptr HidVibrationValue): Result =
-  discard
+proc initializeVibrationDevices*(
+    controller: Controller,
+    controllerTypes: openArray[ControllerType]
+    ): seq[VibrationDevice] =
+  result = @[]
 
-## / Sets whether vibration is allowed, this also affects the config displayed by
-## System Settings.
-proc permitVibration*(flag: bool): Result =
-  discard
+  for ctype in controllerTypes:
+    var devs: array[2, VibrationDevice]
+    var numDevices = 2
 
-## / Gets whether vibration is allowed.
-proc isVibrationPermitted*(flag: ptr bool): Result =
-  discard
+    if ctype == ControllerType.JoyconLeft or ctype == ControllerType.JoyconRight:
+      numDevices = 1
 
-## / Send VibrationValues[index] to VibrationDeviceHandles[index], where count is the
-## number of entries in the VibrationDeviceHandles/VibrationValues arrays.
-proc sendVibrationValues*(VibrationDeviceHandles: ptr uint32;
-                            VibrationValues: ptr HidVibrationValue; count: csize): Result =
-  discard
+    let rc = hidInitializeVibrationDevices(
+      devs[0].addr, numDevices, HidControllerID(controller),
+      HidControllerType(ctype)
+    ).newResult
+
+    if rc.failed:
+      raiseEx(
+        VibrationInitError,
+        "Could not init vibration for controller #$ with type #$" %
+        [$controller, $ctype]
+      )
+    for i in 0 ..< numDevices:
+      result.add(devs[i])
+
+
+proc info*(device: VibrationDevice): VibrationDeviceInfo =
+  ## / Gets HidVibrationDeviceInfo for the specified VibrationDeviceHandle.
+  let rc = hidGetVibrationDeviceInfo(device.unsafeAddr, result.addr).newResult
+
+  if rc.failed:
+    raiseEx(VibrationError, "Could not get vibration device info", rc)
+
+proc `vibration=`*(device: VibrationDevice, value: VibrationValue) =
+  ## / Send the value to the specified handle.
+  let rc = hidSendVibrationValue(device.unsafeAddr, value.unsafeAddr).newResult
+
+  if rc.failed:
+    raiseEx(VibrationError, "Could not send vibration value", rc)
+
+proc vibration*(device: VibrationDevice): VibrationValue =
+  ## / Gets the current HidVibrationValue for the specified VibrationDeviceHandle.
+  let rc = hidGetActualVibrationValue(device.unsafeAddr, result.addr).newResult
+
+  if rc.failed:
+    raiseEx(VibrationError, "Could not get vibration value", rc)
+
+proc permitVibration*(flag: bool) =
+  ## / Sets whether vibration is allowed, this also affects the config displayed by
+  ## System Settings.
+  let rc = hidPermitVibration(flag).newResult
+
+  if rc.failed:
+    raiseEx(VibrationError, "Unable to permit vibration", rc)
+
+proc isVibrationPermitted*(): bool =
+  ## / Gets whether vibration is allowed.
+  let rc = hidIsVibrationPermitted(result.addr).newResult
+  if rc.failed:
+    raiseEx(VibrationError, "Error getting vibration information", rc)
+
+proc sendVibrationValues*(
+    devices: openArray[VibrationDevice],
+    values: openArray[VibrationValue]) =
+  ## / Send VibrationValues[index] to VibrationDeviceHandles[index], where count is the
+  ## number of entries in the VibrationDeviceHandles/VibrationValues arrays.
+  let sizeH = len(devices)
+  let sizeV = len(values)
+
+  if sizeH != sizeV:
+    raiseEx(
+      VibrationError,
+      "Vibration arrays must be the same size. handles $# != values $#" %
+      [$sizeH, $sizeV]
+    )
+
+  let rc = hidSendVibrationValues(
+    devices[0].unsafeAddr, values[0].unsafeAddr, sizeH
+  ).newResult
+
+  if rc.failed:
+    raiseEx(VibrationError, "Unable to send vibration error", rc)
