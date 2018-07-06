@@ -1,4 +1,5 @@
 import macros, strutils, math
+import libnx/results
 
 proc size*(enumTy: typedesc): int =
   # Returns the number of items in a bit set enum
@@ -88,8 +89,12 @@ type
     len*: int
     data*: ptr UncheckedArray[T]
 
+template raiseEx*(ty: untyped, message: string, rc: Result): untyped =
+  ## Raise an exception with a result description
+  raise newException(ty, message & ": " & rc.description)
 
 template raiseEx*(ty: untyped, message: string): untyped =
+  ## Raise an exception
   raise newException(ty, message)
 
 proc `[]`[T](buff: Buffer[T], index: int): T =

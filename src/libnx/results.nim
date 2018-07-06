@@ -94,6 +94,7 @@ proc succeeded*(res: Result): bool = res.code.R_SUCCEEDED
 proc failed*(res: Result): bool = res.code.R_FAILED
 
 proc newResult*(code: uint32): Result =
+  ## Create a result from a libnx error code for friendlier syntax.
   result = new(Result)
 
   result.code = code

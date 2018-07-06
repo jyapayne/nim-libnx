@@ -36,11 +36,15 @@ type
 
 var enabled = false
 
+
 proc getService*(): Service =
   let serv = accountGetService()[]
   result = newService(serv)
 
-proc init*() =
+
+proc init() =
+  ## Initializes the account service. Should not
+  ## be used in client code
   let service = getService()
   if service.isActive:
     return
@@ -53,24 +57,30 @@ proc init*() =
     )
   enabled = true
 
-proc exit*() =
+
+proc exit() =
+  ## Exits and closes the Account service
   let service = getService()
   if not service.isActive:
     return
   accountExit()
   enabled = false
 
+
 proc close*(profile: AccountProfile) =
   accountProfileClose(profile.unsafeAddr)
+
 
 template withAccountService*(code: untyped): typed =
   init()
   code
   exit()
 
+
 proc ensureEnabled() =
   if not enabled:
     raiseEx(AccountError, "Use withAccountService to access account functions.")
+
 
 proc getImageSize*(profile: AccountProfile): int =
   ensureEnabled()
@@ -80,6 +90,7 @@ proc getImageSize*(profile: AccountProfile): int =
   if code.failed:
     raiseEx(AccountImageSizeError, "Error, could not get image size: " & code.description)
   result = res.int
+
 
 proc imageSize*(user: User): int =
   ensureEnabled()
@@ -91,6 +102,7 @@ proc imageSize*(user: User): int =
     raiseEx(AccountImageSizeError, "Error, could not get image size: " & res.description)
 
   result = size.int
+
 
 proc getProfileHelper(userID: u128): AccountProfile =
   let res = accountGetProfile(result.addr, userID).newResult
@@ -120,8 +132,10 @@ proc loadImage*(user: User): AccountImage =
 
   prof.close()
 
+
 proc userID*(user: User): string =
   $user.id
+
 
 proc getUser*(userID: u128): User =
   ensureEnabled()
@@ -203,6 +217,7 @@ proc getProfile*(user: User): Profile =
 
 
 proc getUserCount*(): int32 =
+  ## Gets the number of users on the switch
   ensureEnabled()
   var count: int32
   let res = accountGetUserCount(count.addr).newResult
@@ -215,6 +230,7 @@ proc getUserCount*(): int32 =
 
 
 proc listAllUsers*(): seq[User] =
+  ## Gets a list of all users currently on the switch
   ensureEnabled()
   result = @[]
 
