@@ -1,10 +1,6 @@
 import sets, strutils
-import libnx/graphics
-import libnx/console
+import libnx/[graphics, console, account, input, app]
 import libnx/ext/integer128
-import libnx/account
-import libnx/input
-import libnx/app
 
 proc main() =
   graphics.initDefault()

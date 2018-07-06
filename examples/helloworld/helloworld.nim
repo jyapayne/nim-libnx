@@ -1,9 +1,5 @@
 import sets
-import libnx/graphics
-import libnx/console
-import libnx/wrapper/hid
-import libnx/app
-import libnx/input
+import libnx/[graphics, console, app, input]
 
 
 proc main() =
