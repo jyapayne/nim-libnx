@@ -4,7 +4,7 @@ import macros, strutils
 
 
 type
-  PrintCallback* = proc (con: pointer; c: cint): bool
+  PrintCallback* = proc (con: Console; c: char): bool
 
   Font* = ref ConsoleFont
 
@@ -65,7 +65,12 @@ proc toConsole(pconsole: ptr PrintConsole): Console =
   result.fg = pconsole.fg
   result.bg = pconsole.bg
   result.flags = {}
-  #result.printCharCallback = cast[PrintCallback](pconsole.PrintChar)
+
+  result.pcon.PrintChar = proc (con: pointer, c: cint): bool {.cdecl.} =
+    let console = cast[ptr PrintConsole](con).toConsole()
+    if not console.printCharCallback.isNil:
+      return console.printCharCallback(console, c.char)
+
   result.initialised = pconsole.consoleInitialised
 
 proc setFont*(console: Console; font: Font) =
