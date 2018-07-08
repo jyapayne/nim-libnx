@@ -6,10 +6,7 @@ import macros, strutils
 type
   PrintCallback* = proc (con: pointer; c: cint): bool
 
-  #Font* = ref object
-  #  gfx*: Buffer[uint16]
-  #  asciiOffset*: uint16
-  #  numChars*: uint16
+  Font* = ref ConsoleFont
 
   Style* {.pure.} = enum
     Bold = CONSOLE_COLOR_BOLD(),
@@ -71,9 +68,9 @@ proc toConsole(pconsole: ptr PrintConsole): Console =
   #result.printCharCallback = cast[PrintCallback](pconsole.PrintChar)
   result.initialised = pconsole.consoleInitialised
 
-proc setFont*(console: Console; font: ConsoleFont) =
+proc setFont*(console: Console; font: Font) =
   var f = font
-  consoleSetFont(console.pcon, f.addr)
+  consoleSetFont(console.pcon, f[].addr)
   console.font = console.pcon.font
 
 proc setWindow*(console: Console, x, y, width, height: int) =
