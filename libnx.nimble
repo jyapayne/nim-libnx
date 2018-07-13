@@ -9,7 +9,7 @@ srcDir = "src"
 
 # Deps
 requires "nim >= 0.18.1", "https://github.com/genotrance/nimgen#head"
-requires "https://github.com/jyapayne/switch-build#head"
+requires "switch-build >= 0.1.6"
 
 task setup, "Download and generate bindings":
   echo "Building libnx..."
