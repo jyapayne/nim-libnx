@@ -23,4 +23,6 @@ before install:
   setupTask()
 
 task test, "Run tests":
-  exec "nim c -r tests/test.nim"
+  discard
+# no tests because code needs to run on the Switch :(
+#  exec "nim c -r tests/test.nim"
