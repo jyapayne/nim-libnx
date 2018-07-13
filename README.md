@@ -15,7 +15,7 @@ Simply run
 
 ```bash
 # Because of a bug in nimble right now, you must install this first!
-nimble install "https://github.com/jyapayne/nimgenEx#head"
+nimble install nimgen@#head
 nimble install
 ```
 
