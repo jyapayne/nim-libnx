@@ -8,7 +8,7 @@ license       = "The Unlicense"
 srcDir = "src"
 
 # Deps
-requires "nim >= 0.18.1", "https://github.com/jyapayne/nimgenEx#head"
+requires "nim >= 0.18.1", "https://github.com/genotrance/nimgen#head"
 requires "https://github.com/jyapayne/switch-build#head"
 
 task setup, "Download and generate bindings":
