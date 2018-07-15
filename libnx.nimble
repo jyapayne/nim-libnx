@@ -24,7 +24,6 @@ task setup, "Download and generate bindings":
   exec prefix & "nimgen libnxGen.cfg"
 
 task buildExamples, "Build switch examples":
-  echo prefix & "switch_build --libnxPath='" & thisDir() & "/src/libnx/wrapper/nx/' --author=\"" & username & "\" --version='1.0.0' examples/helloworld/helloworld.nim"
   exec prefix & "switch_build --libnxPath='" & thisDir() & "/src/libnx/wrapper/nx/' --author=\"" & username & "\" --version='1.0.0' examples/helloworld/helloworld.nim"
   exec prefix & "switch_build --libnxPath='" & thisDir() & "/src/libnx/wrapper/nx/' --author=\"" & username & "\" --version='1.0.0' examples/accounts/account_ex.nim"
 
