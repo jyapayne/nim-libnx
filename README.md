@@ -6,7 +6,8 @@ You also must have DevkitPro and switch (libnx) libraries for [Mac and Linux](ht
 - `DEVKITPRO/libnx/lib`
 - `DEVKITPRO/libnx/include`
 
-##Install
+
+## Install
 
 Simply run
 
