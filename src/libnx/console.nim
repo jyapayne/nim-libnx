@@ -1,4 +1,4 @@
-import libnx/wrapper/con
+import libnx/wrapper/cons
 import libnx/utils
 import macros, strutils
 

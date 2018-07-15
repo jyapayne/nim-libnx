@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.7"
+version       = "0.1.8"
 author        = "Joey Payne"
 description   = "Nintendo Switch library libnx for Nim."
 license       = "The Unlicense"
