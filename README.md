@@ -3,11 +3,8 @@ Libnx ported to the Nim programming language. You will need a nim compiler with 
 
 You also must have DevkitPro and switch (libnx) libraries for [Mac and Linux](https://github.com/devkitPro/pacman/releases) or [Windows](https://github.com/devkitPro/installer/releases) installed. The DEVKITPRO environment variable must also exist and point to a directory with the following structure:
 
-- `DEVKITPRO/portlibs/switch/lib`
 - `DEVKITPRO/libnx/lib`
-- `DEVKITPRO/portlibs/switch/include`
 - `DEVKITPRO/libnx/include`
-
 
 ##Install
 
