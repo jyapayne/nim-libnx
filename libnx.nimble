@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.8"
+version       = "0.1.9"
 author        = "Joey Payne"
 description   = "Nintendo Switch library libnx for Nim."
 license       = "The Unlicense"
@@ -17,7 +17,7 @@ if detectOs(Windows):
 
 # Deps
 requires "nim >= 0.18.1", "https://github.com/genotrance/nimgen#head"
-requires "switch-build >= 0.1.6"
+requires "switch_build >= 0.1.3"
 
 task setup, "Download and generate bindings":
   echo "Building libnx..."
