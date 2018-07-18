@@ -1,3 +1,4 @@
+import strutils
 import
   libnx/wrapper/result,
   libnx/wrapper/types
@@ -5,7 +6,7 @@ import
 type
 
   Module {.pure.} = enum
-    Invalid = 0, # This is just so the nim compiler is happy
+    Success = 0,
     Kernel = 1,
     Libnx = 345,
     LibnxNvidia = 348
@@ -13,16 +14,8 @@ type
   Result* = ref object
     code*: uint32
     module*: string
-    description*: string
-    case kind*: Module
-    of Module.Kernel:
-      kernelError*: KernelError
-    of Module.Libnx:
-      libnxError*: LibnxError
-    of Module.LibnxNvidia:
-      libnxNvidiaError*: LibnxNvidiaError
-    else:
-      discard
+    kind*: Module
+    error*: string
 
   KernelError* {.pure.} = enum
     Timeout = 117
@@ -98,8 +91,6 @@ proc newResult*(code: uint32): Result =
   result = new(Result)
 
   result.code = code
-  if code.R_SUCCEEDED:
-    return
 
   let moduleCode = code.R_MODULE
   let module = Module(moduleCode)
@@ -108,20 +99,18 @@ proc newResult*(code: uint32): Result =
 
   let descCode = code.R_DESCRIPTION
 
-  var description = ""
+  var error = "Unknown error: module: $# description: $#" %
+              [$moduleCode, $descCode]
   try:
     case module
-    of Module.Invalid:
-      discard
+    of Module.Success:
+      return
     of Module.Kernel:
-      result.kernelError = KernelError(descCode)
-      description = $result.kernelError
+      error = $KernelError(descCode)
     of Module.Libnx:
-      result.libnxError = LibnxError(descCode)
-      description = $result.libnxError
+      error = $LibnxError(descCode)
     of Module.LibnxNvidia:
-      result.libnxNvidiaError = LibnxNvidiaError(descCode)
-      description = $result.libnxNvidiaError
+      error = $LibnxNvidiaError(descCode)
   except:
     echo "Converting to result failed: " & getCurrentExceptionMsg()
     echo "Code: " & $code
@@ -130,4 +119,4 @@ proc newResult*(code: uint32): Result =
     echo "DescCode: " & $descCode
 
   result.module = $module
-  result.description = description
+  result.error = error

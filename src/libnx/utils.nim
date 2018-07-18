@@ -1,5 +1,10 @@
-import macros, strutils, math
+import macros, strutils, math, hashes
 import libnx/results
+
+
+proc hash*(obj: SomeOrdinal): Hash =
+  ## Allow hashing of enums with holes
+  result = cast[int](obj)
 
 proc size*(enumTy: typedesc): int =
   # Returns the number of items in a bit set enum
@@ -90,8 +95,8 @@ type
     data*: ptr UncheckedArray[T]
 
 template raiseEx*(ty: untyped, message: string, rc: Result): untyped =
-  ## Raise an exception with a result description
-  raise newException(ty, message & ": " & rc.description)
+  ## Raise an exception with a result error
+  raise newException(ty, message & ": " & rc.error)
 
 template raiseEx*(ty: untyped, message: string): untyped =
   ## Raise an exception

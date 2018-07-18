@@ -53,7 +53,7 @@ proc init() =
   if code.failed:
     raiseEx(
       AccountInitError,
-      "Error, account api could not be initialized: " & code.description
+      "Error, account api could not be initialized", code
     )
   enabled = true
 
@@ -88,7 +88,7 @@ proc getImageSize*(profile: AccountProfile): int =
   result = 0
   let code = accountProfileGetImageSize(profile.unsafeAddr, res.addr).newResult
   if code.failed:
-    raiseEx(AccountImageSizeError, "Error, could not get image size: " & code.description)
+    raiseEx(AccountImageSizeError, "Error, could not get image size", code)
   result = res.int
 
 
@@ -99,7 +99,7 @@ proc imageSize*(user: User): int =
   let res = accountProfileGetImageSize(prof.addr, size.addr).newResult
 
   if res.failed:
-    raiseEx(AccountImageSizeError, "Error, could not get image size: " & res.description)
+    raiseEx(AccountImageSizeError, "Error, could not get image size", res)
 
   result = size.int
 
@@ -108,7 +108,7 @@ proc getProfileHelper(userID: u128): AccountProfile =
   let res = accountGetProfile(result.addr, userID).newResult
 
   if res.failed:
-    raiseEx(AccountUserProfileError, "Error, could not get user profile: " & res.description)
+    raiseEx(AccountUserProfileError, "Error, could not get user profile", res)
 
 
 proc loadImage*(user: User): AccountImage =
@@ -128,7 +128,7 @@ proc loadImage*(user: User): AccountImage =
 
   if res.failed:
     prof.close()
-    raiseEx(AccountImageLoadError, "Error, could not load image: " & res.description)
+    raiseEx(AccountImageLoadError, "Error, could not load image", res)
 
   prof.close()
 
@@ -152,7 +152,7 @@ proc getUser*(userID: u128): User =
   let res = accountProfileGet(prof.addr, userData.addr, profBase.addr).newResult
 
   if res.failed:
-    raiseEx(AccountUserDataError, "Error, could not get user data: " & res.description)
+    raiseEx(AccountUserDataError, "Error, could not get user data", res)
 
   result.username = profBase.username.join("")
   result.lastEdited = profBase.lastEditTimestamp
@@ -173,7 +173,7 @@ proc getActiveUser*(): User =
   var res = accountGetActiveUser(userID.addr, selected.addr).newResult
 
   if res.failed:
-    raiseEx(AccountActiveUserError, "Error, could not get active user ID: " & res.description)
+    raiseEx(AccountActiveUserError, "Error, could not get active user ID", res)
 
   if not selected:
     raiseEx(AccountUserNotSelectedError, "No user currently selected!")
@@ -189,7 +189,7 @@ proc getActiveUser*(): User =
   res = accountProfileGet(prof.addr, userData.addr, profBase.addr).newResult
 
   if res.failed:
-    raiseEx(AccountUserDataError, "Error, could not get user data: " & res.description)
+    raiseEx(AccountUserDataError, "Error, could not get user data", res)
 
   result.username = profBase.username.join("")
   result.lastEdited = profBase.lastEditTimestamp
@@ -209,7 +209,7 @@ proc getProfile*(user: User): Profile =
   if res.failed:
     raiseEx(
       AccountUserProfileError,
-      "Error, could not get account profile: " & res.description
+      "Error, could not get account profile", res
     )
 
   result.service = newService(prof.s)
@@ -224,7 +224,7 @@ proc getUserCount*(): int32 =
   if res.failed:
     raiseEx(
       AccountUserCountError,
-      "Error, could not get user count: " & res.description
+      "Error, could not get user count", res
     )
   result = count
 
@@ -247,7 +247,7 @@ proc listAllUsers*(): seq[User] =
   if res.failed:
     raiseEx(
       AccountUserListError,
-      "Error, could not list users: " & res.description
+      "Error, could not list users", res
     )
 
   for i in 0 ..< usersReturned.int:

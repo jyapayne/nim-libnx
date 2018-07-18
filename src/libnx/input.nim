@@ -421,7 +421,7 @@ proc initializeVibrationDevices*(
     if rc.failed:
       raiseEx(
         VibrationInitError,
-        "Could not init vibration for controller #$ with type #$" %
+        "Could not init vibration for controller $# with type $#" %
         [$controller, $ctype]
       )
     for i in 0 ..< numDevices:

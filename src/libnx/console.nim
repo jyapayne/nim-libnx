@@ -1,6 +1,6 @@
+import macros, strutils, sets
 import libnx/wrapper/cons
 import libnx/utils
-import macros, strutils
 
 
 type
@@ -64,7 +64,7 @@ proc toConsole(pconsole: ptr PrintConsole): Console =
   result.tabSize = pconsole.tabSize
   result.fg = pconsole.fg
   result.bg = pconsole.bg
-  result.flags = {}
+  result.flags = initSet[Style]()
 
   result.pcon.PrintChar = proc (con: pointer, c: cint): bool {.cdecl.} =
     let console = cast[ptr PrintConsole](con).toConsole()
