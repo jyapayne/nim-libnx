@@ -37,18 +37,19 @@ type
     tabSize*: int
     fg*: int
     bg*: int
-    flags*: set[Style]
+    flags*: HashSet[Style]
     printCharCallback*: PrintCallback
     initialised*: bool
 
   DebugDevice* {.size: sizeof(cint), pure.} = enum
     Null, Service, Console, ThreeDMOO
 
+var currentConsole {.threadvar.}: Console
+
 proc toConsole(pconsole: ptr PrintConsole): Console =
   result = new(Console)
   result.pcon = pconsole
   result.font = pconsole.font
-  result.cursorX = pconsole.cursorX
   result.frameBuffer = cast[ptr UncheckedArray[uint32]](pconsole.frameBuffer)
   result.frameBuffer2 = cast[ptr UncheckedArray[uint32]](pconsole.frameBuffer2)
   result.cursorX = pconsole.cursorX
@@ -86,20 +87,21 @@ proc setWindow*(console: Console, x, y, width, height: int) =
   console.windowY = console.pcon.windowY.int
 
 proc getDefault*(): Console =
+  ## Gets the default console with default values
   let pcon = consoleGetDefault()
   result = pcon.toConsole()
 
 proc select*(console: Console): Console =
-  consoleSelect(console.pcon).toConsole()
+  currentConsole = consoleInit(console.pcon).toConsole()
+  return currentConsole
 
-proc init*(console: Console = nil): Console {.discardable.} =
-  var newCon = console
-  if newCon.isNil:
-    newCon = new(Console)
+proc init*(console: Console): Console {.discardable.} =
+  currentConsole = consoleInit(console.pcon).toConsole()
+  return currentConsole
 
-  let pcon = consoleInit(newCon.pcon)
-  newCon = pcon.toConsole()
-  return newCon
+proc init*(): Console {.discardable.} =
+  currentConsole = consoleInit(nil).toConsole()
+  return currentConsole
 
 proc debugInit*(device: DebugDevice) =
   if device == ThreeDMOO:
@@ -110,17 +112,17 @@ proc debugInit*(device: DebugDevice) =
 proc clear*() =
   consoleClear()
 
-var printPos: tuple[row: int, col: int] = (0, 0)
-
-proc setPrintPos*(pos: tuple[row: int, col: int]) =
-  printPos = pos
-
 proc printAt*(pos: tuple[row: int, col: int], args: varargs[string, `$`]) =
-  setPrintPos(pos)
-  echo ("\x1b[$#;$#H" % [$pos[0], $pos[1]]), args.join("")
+  echo CONSOLE_ESC("2K"), (CONSOLE_ESC("$#;$#H") % [$pos.row, $pos.col]), args.join("")
+  currentConsole.pcon.cursorX = pos.col.int32
+  currentConsole.pcon.cursorY = pos.row.int32
+  currentConsole.cursorX = pos.col
+  currentConsole.cursorY = pos.row
 
 proc print*(args: varargs[string, `$`]) =
-  ## Will print at the previously set printPos using ``printAt`` or ``setPrintPos``
+  ## Will print at the previously set printPos using ``printAt``
   ## and then increment the row by one
+  let
+    pcon = currentConsole.pcon
+    printPos = (pcon.cursorY.int+1, pcon.cursorX.int)
   printAt printPos, args
-  printPos.row += 1

@@ -2,7 +2,7 @@ import sets
 import libnx/[graphics, console, app, input]
 
 
-proc main() =
+mainFunction:
   initDefault()
   console.init()
 
@@ -15,5 +15,3 @@ proc main() =
 
     if ControllerKey.Plus in keysDown:
       break
-
-main()

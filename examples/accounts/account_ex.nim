@@ -2,7 +2,7 @@ import sets, strutils
 import libnx/[graphics, console, account, input, app]
 import libnx/ext/integer128
 
-proc main() =
+mainFunction:
   graphics.initDefault()
   console.init()
 
@@ -43,5 +43,3 @@ proc main() =
 
     if ControllerKey.Plus in keysDown:
       break
-
-main()
