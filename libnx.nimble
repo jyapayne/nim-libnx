@@ -10,10 +10,10 @@ srcDir = "src"
 import distros
 
 var prefix = ""
-var username = "$USER"
+var username = getEnv("USER")
 if detectOs(Windows):
   prefix = "cmd /c "
-  username = "%username%"
+  username = getEnv("USERNAME")
 
 # Deps
 requires "nim >= 0.18.1", "https://github.com/genotrance/nimgen#head"
@@ -24,8 +24,8 @@ task setup, "Download and generate bindings":
   exec prefix & "nimgen libnxGen.cfg"
 
 task buildExamples, "Build switch examples":
-  exec prefix & "switch_build --libnxPath='" & thisDir() & "/src/libnx/wrapper/nx/' --author=\"" & username & "\" --version='1.0.0' examples/helloworld/helloworld.nim"
-  exec prefix & "switch_build --libnxPath='" & thisDir() & "/src/libnx/wrapper/nx/' --author=\"" & username & "\" --version='1.0.0' examples/accounts/account_ex.nim"
+  exec prefix & "switch_build --libnxPath=\"" & thisDir() & "/src/libnx/wrapper/nx/\" --author=\"" & username & "\" --version=\"1.0.0\" examples/helloworld/helloworld.nim"
+  exec prefix & "switch_build --libnxPath=\"" & thisDir() & "/src/libnx/wrapper/nx/\" --author=\"" & username & "\" --version=\"1.0.0\" examples/accounts/account_ex.nim"
 
 before install:
   setupTask()
