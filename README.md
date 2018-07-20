@@ -6,6 +6,13 @@ You also must have DevkitPro and switch (libnx) libraries for [Mac and Linux](ht
 - `DEVKITPRO/libnx/lib`
 - `DEVKITPRO/libnx/include`
 
+OR you must specify a valid libnx path and/or devkitpro path to the `switch_build` utility:
+
+```bash
+switch_build --libnxPath:"C:\devkitPro\libnx" --author:"Joey" --version:"1.0.0" .\examples\accounts\account_ex.nim
+# OR
+switch_build --devkitProPath:"C:\devkitPro" --author:"Joey" --version:"1.0.0" .\examples\accounts\account_ex.nim
+```
 
 ## Install
 
