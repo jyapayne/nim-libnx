@@ -16,7 +16,7 @@ if detectOs(Windows):
   username = getEnv("USERNAME")
 
 # Deps
-requires "nim >= 0.18.1", "https://github.com/genotrance/nimgen#head"
+requires "nim >= 0.18.1", "nimgen#dc9943a22c9c8f6a5a6a92f0055e1de4dfaf87d2"
 requires "switch_build >= 0.1.3"
 
 task setup, "Download and generate bindings":
@@ -24,8 +24,16 @@ task setup, "Download and generate bindings":
   exec prefix & "nimgen libnxGen.cfg"
 
 task buildExamples, "Build switch examples":
-  exec prefix & "switch_build --libnxPath=\"" & thisDir() & "/src/libnx/wrapper/nx/\" --author=\"" & username & "\" --version=\"1.0.0\" examples/helloworld/helloworld.nim"
-  exec prefix & "switch_build --libnxPath=\"" & thisDir() & "/src/libnx/wrapper/nx/\" --author=\"" & username & "\" --version=\"1.0.0\" examples/accounts/account_ex.nim"
+  if detectOs(Windows):
+    let devkitPath = getEnv("DEVKITPRO")
+    if devkitPath == "" or not dirExists(devkitPath):
+      echo "You must set the DEVKITPRO environment variable to something valid!"
+    else:
+      exec prefix & "switch_build --libnxPath=\"" & devkitPath & "/libnx/\" --author=\"" & username & "\" --version=\"1.0.0\" examples/helloworld/helloworld.nim"
+      exec prefix & "switch_build --libnxPath=\"" & devkitPath & "/libnx/\" --author=\"" & username & "\" --version=\"1.0.0\" examples/accounts/account_ex.nim"
+  else:
+    exec prefix & "switch_build --libnxPath=\"" & thisDir() & "/src/libnx/wrapper/nx/\" --author=\"" & username & "\" --version=\"1.0.0\" examples/helloworld/helloworld.nim"
+    exec prefix & "switch_build --libnxPath=\"" & thisDir() & "/src/libnx/wrapper/nx/\" --author=\"" & username & "\" --version=\"1.0.0\" examples/accounts/account_ex.nim"
 
 before install:
   setupTask()
