@@ -2,10 +2,12 @@ import strutils
 import
   libnx/wrapper/types,
   libnx/wrapper/gfx,
+  libnx/results,
   libnx/utils
 
 type
   GraphicsError* = object of Exception
+  GraphicsInitError* = object of GraphicsError
   InitResolutionError* = object of GraphicsError
   CropBoundsError* = object of GraphicsError
 
@@ -53,7 +55,12 @@ var enabled = false
 ##
 proc initDefault*() =
   if not enabled:
-    gfxInitDefault()
+    let code = gfxInitDefault().newResult
+    if code.failed:
+      raiseEx(
+        GraphicsInitError,
+        "Error, graphics could not be initialized", code
+      )
     enabled = true
 
 ## *
@@ -183,10 +190,6 @@ proc getFramebuffer*(): Framebuffer =
 
 ## / Sets the \ref GfxMode.
 proc setMode*(mode: GfxMode) = gfxSetMode(gfx.GfxMode(mode))
-
-## / Controls whether a vertical-flip is done when determining the pixel-offset within
-## the actual framebuffer. By default this is enabled.
-proc setDrawFlip*(enabled: bool) = gfxSetDrawFlip(enabled)
 
 ## / Configures transform. See the NATIVE_WINDOW_TRANSFORM_* enums in buffer_producer.h.
 ## The default is NATIVE_WINDOW_TRANSFORM_FLIP_V.
