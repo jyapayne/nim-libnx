@@ -1,7 +1,17 @@
 # nim-libnx
 Libnx ported to the Nim programming language. You will need a Nim compiler with Nintendo switch support which can be found in the latest devel branch of the Nim compiler.
 
-You also must have DevkitPro and switch (libnx) libraries for [Mac and Linux](https://github.com/devkitPro/pacman/releases) or [Windows](https://github.com/devkitPro/installer/releases) installed. The DEVKITPRO environment variable must also exist and point to a directory with the following structure:
+You also must have DevkitPro and switch (libnx) libraries for [Mac and Linux](https://github.com/devkitPro/pacman/releases) or [Windows](https://github.com/devkitPro/installer/releases) installed.
+
+From dkp-pacman, the switch libraries can be installed with:
+
+```
+dkp-pacman -Syu
+dkp-pacman -S switch-dev
+## When it asks for installation options, choose the default which will install everything
+```
+
+The DEVKITPRO environment variable must also exist and point to a directory with the following structure:
 
 - `DEVKITPRO/libnx/lib`
 - `DEVKITPRO/libnx/include`
