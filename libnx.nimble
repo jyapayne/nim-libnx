@@ -16,12 +16,8 @@ if detectOs(Windows):
   username = getEnv("USERNAME")
 
 # Deps
-requires "nim >= 0.18.1", "nimgen#dc9943a22c9c8f6a5a6a92f0055e1de4dfaf87d2"
+requires "nim >= 1.6.6"
 requires "switch_build >= 0.1.3"
-
-task setup, "Download and generate bindings":
-  echo "Building libnx..."
-  exec prefix & "nimgen libnxGen.cfg"
 
 task buildExamples, "Build switch examples":
   if detectOs(Windows):

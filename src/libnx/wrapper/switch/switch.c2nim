@@ -1,0 +1,14 @@
+#nep1
+#skipinclude
+#cdecl
+#mangle uint8_t uint8
+#mangle uint16_t uint16
+#mangle uint32_t uint32
+#mangle uint64_t uint64
+#mangle "'__uint128_t'" "u128"
+#mangle int8_t int8
+#mangle int16_t int16
+#mangle int32_t int32
+#mangle int64_t int64
+#mangle "'__int128_t'" "s128"
+#dynlib libobjc
