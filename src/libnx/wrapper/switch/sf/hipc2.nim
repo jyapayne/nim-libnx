@@ -7,11 +7,11 @@
 ##
 
 import
-  ../result, ../arm/tls, ../kernel/svc
+  ../result, ../arm/tls
 
 const
-  HIPC_AUTO_RECV_STATIC* = uint8Max
-  HIPC_RESPONSE_NO_PID* = uint32Max
+  HIPC_AUTO_RECV_STATIC* = uint8.high
+  HIPC_RESPONSE_NO_PID* = uint32.high
 
 type
   HipcMetadata* {.bycopy.} = object
@@ -96,118 +96,154 @@ type
 
 
 proc hipcMakeSendStatic*(buffer: pointer; size: csize_t; index: U8): HipcStaticDescriptor {.
-    inline, cdecl, importc: "hipcMakeSendStatic".} =
-  ## !!!Ignored construct:  return ( HipcStaticDescriptor ) { . index = index , . address_high = ( u32 ) ( ( uintptr_t ) buffer >> 36 ) , . address_mid = ( u32 ) ( ( uintptr_t ) buffer >> 32 ) , . size = ( u32 ) size , . address_low = ( u32 ) ( uintptr_t ) buffer , } ;
-  ## Error: token expected: ; but got: {!!!
+    inline, cdecl.} =
+  return HipcStaticDescriptor(
+      index        : index,
+      address_high : (U32)(cast[uintptr_t](buffer) shr 36),
+      address_mid  : (U32)(cast[uintptr_t](buffer) shr 32),
+      size         : (U32)size,
+      address_low  : (U32)cast[uintptr_t](buffer)
+  )
 
 proc hipcMakeBuffer*(buffer: pointer; size: csize_t; mode: HipcBufferMode): HipcBufferDescriptor {.
-    inline, cdecl, importc: "hipcMakeBuffer".} =
-  ## !!!Ignored construct:  return ( HipcBufferDescriptor ) { . size_low = ( u32 ) size , . address_low = ( u32 ) ( uintptr_t ) buffer , . mode = mode , . address_high = ( u32 ) ( ( uintptr_t ) buffer >> 36 ) , . size_high = ( u32 ) ( size >> 32 ) , . address_mid = ( u32 ) ( ( uintptr_t ) buffer >> 32 ) , } ;
-  ## Error: token expected: ; but got: {!!!
+    inline, cdecl.} =
+  return HipcBufferDescriptor(
+      size_low     : (U32)size,
+      address_low  : (U32)cast[uintptr_t](buffer),
+      mode         : mode.U32,
+      address_high : (U32)(cast[uintptr_t](buffer) shr 36),
+      size_high    : (U32)(size shr 32),
+      address_mid  : (U32)(cast[uintptr_t](buffer) shr 32),
+  )
 
-proc hipcMakeRecvStatic*(buffer: pointer; size: csize_t): HipcRecvListEntry {.inline,
-    cdecl, importc: "hipcMakeRecvStatic".} =
-  ## !!!Ignored construct:  return ( HipcRecvListEntry ) { . address_low = ( u32 ) ( ( uintptr_t ) buffer ) , . address_high = ( u32 ) ( ( uintptr_t ) buffer >> 32 ) , . size = ( u32 ) size , } ;
-  ## Error: token expected: ; but got: {!!!
+proc hipcMakeRecvStatic*(buffer: pointer; size: csize_t): HipcRecvListEntry {.inline, cdecl.} =
+  return HipcRecvListEntry(
+      address_low  : (U32)(cast[uintptr_t](buffer)),
+      address_high : (U32)(cast[uintptr_t](buffer) shr 32),
+      size         : (U32)size,
+  )
 
-proc hipcGetStaticAddress*(desc: ptr HipcStaticDescriptor): pointer {.inline, cdecl,
-    importc: "hipcGetStaticAddress".} =
+proc hipcGetStaticAddress*(desc: ptr HipcStaticDescriptor): pointer {.inline, cdecl.} =
   return cast[pointer]((desc.addressLow or
       (cast[uintptrT](desc.addressMid) shl 32) or
       (cast[uintptrT](desc.addressHigh) shl 36)))
 
-proc hipcGetStaticSize*(desc: ptr HipcStaticDescriptor): csize_t {.inline, cdecl,
-    importc: "hipcGetStaticSize".} =
+proc hipcGetStaticSize*(desc: ptr HipcStaticDescriptor): csize_t {.inline, cdecl.} =
   return desc.size
 
-proc hipcGetBufferAddress*(desc: ptr HipcBufferDescriptor): pointer {.inline, cdecl,
-    importc: "hipcGetBufferAddress".} =
+proc hipcGetBufferAddress*(desc: ptr HipcBufferDescriptor): pointer {.inline, cdecl.} =
   return cast[pointer]((desc.addressLow or
       (cast[uintptrT](desc.addressMid) shl 32) or
       (cast[uintptrT](desc.addressHigh) shl 36)))
 
-proc hipcGetBufferSize*(desc: ptr HipcBufferDescriptor): csize_t {.inline, cdecl,
-    importc: "hipcGetBufferSize".} =
+proc hipcGetBufferSize*(desc: ptr HipcBufferDescriptor): csize_t {.inline, cdecl.} =
   return desc.sizeLow or (cast[csize_t](desc.sizeHigh) shl 32)
 
-proc hipcCalcRequestLayout*(meta: HipcMetadata; base: pointer): HipcRequest {.inline,
-    cdecl, importc: "hipcCalcRequestLayout".} =
+proc hipcCalcRequestLayout*(meta: HipcMetadata; base: pointer): HipcRequest {.inline, cdecl.} =
   ##  Copy handles
+  var base = base
   var copyHandles: ptr Handle = nil
-  if meta.numCopyHandles:
+  if meta.numCopyHandles.bool:
     copyHandles = cast[ptr Handle](base)
     base = copyHandles + meta.numCopyHandles
   var moveHandles: ptr Handle = nil
-  if meta.numMoveHandles:
+  if meta.numMoveHandles.bool:
     moveHandles = cast[ptr Handle](base)
     base = moveHandles + meta.numMoveHandles
   var sendStatics: ptr HipcStaticDescriptor = nil
-  if meta.numSendStatics:
+  if meta.numSendStatics.bool:
     sendStatics = cast[ptr HipcStaticDescriptor](base)
     base = sendStatics + meta.numSendStatics
   var sendBuffers: ptr HipcBufferDescriptor = nil
-  if meta.numSendBuffers:
+  if meta.numSendBuffers.bool:
     sendBuffers = cast[ptr HipcBufferDescriptor](base)
     base = sendBuffers + meta.numSendBuffers
   var recvBuffers: ptr HipcBufferDescriptor = nil
-  if meta.numRecvBuffers:
+  if meta.numRecvBuffers.bool:
     recvBuffers = cast[ptr HipcBufferDescriptor](base)
     base = recvBuffers + meta.numRecvBuffers
   var exchBuffers: ptr HipcBufferDescriptor = nil
-  if meta.numExchBuffers:
+  if meta.numExchBuffers.bool:
     exchBuffers = cast[ptr HipcBufferDescriptor](base)
     base = exchBuffers + meta.numExchBuffers
   var dataWords: ptr U32 = nil
-  if meta.numDataWords:
+  if meta.numDataWords.bool:
     dataWords = cast[ptr U32](base)
     base = dataWords + meta.numDataWords
   var recvList: ptr HipcRecvListEntry = nil
-  if meta.numRecvStatics:
+  if meta.numRecvStatics.bool:
     recvList = cast[ptr HipcRecvListEntry](base)
-  ## !!!Ignored construct:  return ( HipcRequest ) { . send_statics = send_statics , . send_buffers = send_buffers , . recv_buffers = recv_buffers , . exch_buffers = exch_buffers , . data_words = data_words , . recv_list = recv_list , . copy_handles = copy_handles , . move_handles = move_handles , } ;
-  ## Error: token expected: ; but got: {!!!
+  return HipcRequest(
+      send_statics: send_statics,
+      send_buffers: send_buffers,
+      recv_buffers: recv_buffers,
+      exch_buffers: exch_buffers,
+      data_words: data_words,
+      recv_list: recv_list,
+      copy_handles: copy_handles,
+      move_handles: move_handles,
+  )
 
-proc hipcMakeRequest*(base: pointer; meta: HipcMetadata): HipcRequest {.inline, cdecl,
-    importc: "hipcMakeRequest".} =
+proc hipcMakeRequest*(base: pointer; meta: HipcMetadata): HipcRequest {.inline, cdecl.} =
   ##  Write message header
+  var base = base
   var hasSpecialHeader: bool = meta.sendPid or meta.numCopyHandles or
       meta.numMoveHandles
   var hdr: ptr HipcHeader = cast[ptr HipcHeader](base)
   base = hdr + 1
   ## !!!Ignored construct:  * hdr = ( HipcHeader ) { . type = meta . type , . num_send_statics = meta . num_send_statics , . num_send_buffers = meta . num_send_buffers , . num_recv_buffers = meta . num_recv_buffers , . num_exch_buffers = meta . num_exch_buffers , . num_data_words = meta . num_data_words , . recv_static_mode = meta . num_recv_statics ? ( meta . num_recv_statics != HIPC_AUTO_RECV_STATIC ? 2u + meta . num_recv_statics : 2u ) : 0u , . padding = 0 , . recv_list_offset = 0 , . has_special_header = has_special_header , } ;
   ## Error: expected ';'!!!
+  hdr[] = HipcHeader(
+      type: meta.type,
+      num_send_statics: meta.num_send_statics,
+      num_send_buffers: meta.num_send_buffers,
+      num_recv_buffers: meta.num_recv_buffers,
+      num_exch_buffers: meta.num_exch_buffers,
+      num_data_words: meta.num_data_words,
+      recv_static_mode: if meta.num_recv_statics.bool:
+        if meta.num_recv_statics != HIPC_AUTO_RECV_STATIC:
+          2'U32 + meta.num_recv_statics.U32
+        else: 2.U32
+        else: 0.U32,
+      padding: 0,
+      recv_list_offset: 0,
+      has_special_header: has_special_header.U32,
+  )
   ##  Write special header
   if hasSpecialHeader:
     var sphdr: ptr HipcSpecialHeader = cast[ptr HipcSpecialHeader](base)
     base = sphdr + 1
-    ## !!!Ignored construct:  * sphdr = ( HipcSpecialHeader ) { . send_pid = meta . send_pid , . num_copy_handles = meta . num_copy_handles , . num_move_handles = meta . num_move_handles , } ;
-    ## Error: expected ';'!!!
-    if meta.sendPid:
-      base = cast[ptr U8](base) + sizeof((u64))
+    sphdr[] = HipcSpecialHeader(
+        send_pid: meta.send_pid,
+        num_copy_handles: meta.num_copy_handles,
+        num_move_handles: meta.num_move_handles,
+    )
+    if meta.sendPid.bool:
+      base = cast[ptr U8](base) + sizeof((U64))
   return hipcCalcRequestLayout(meta, base)
 
-proc hipcParseRequest*(base: pointer): HipcParsedRequest {.inline, cdecl,
-    importc: "hipcParseRequest".} =
+proc hipcParseRequest*(base: pointer): HipcParsedRequest {.inline, cdecl.} =
   ##  Parse message header
   var hdr: HipcHeader = HipcHeader()
-  builtinMemcpy(addr(hdr), base, sizeof((hdr)))
+  var base = base
+  copyMem(addr(hdr), base, sizeof((hdr)))
   base = cast[ptr U8](base) + sizeof((hdr))
   var numRecvStatics: U32 = 0
   var pid: U64 = 0
   ##  Parse recv static mode
-  if hdr.recvStaticMode:
+  if hdr.recvStaticMode.bool:
     if hdr.recvStaticMode == 2'u:
-      numRecvStatics = hipc_Auto_Recv_Static
+      numRecvStatics = Hipc_Auto_Recv_Static
     elif hdr.recvStaticMode > 2'u:
-      numRecvStatics = hdr.recvStaticMode - 2'u
+      numRecvStatics = hdr.recvStaticMode - 2.U32
   var sphdr: HipcSpecialHeader = HipcSpecialHeader()
-  if hdr.hasSpecialHeader:
-    builtinMemcpy(addr(sphdr), base, sizeof((sphdr)))
+  if hdr.hasSpecialHeader.bool:
+    copyMem(addr(sphdr), base, sizeof((sphdr)))
     base = cast[ptr U8](base) + sizeof((sphdr))
     ##  Read PID descriptor
-    if sphdr.sendPid:
+    if sphdr.sendPid.bool:
       pid = cast[ptr U64](base)[]
-      base = cast[ptr U8](base) + sizeof((u64))
+      base = cast[ptr U8](base) + sizeof((U64))
   let meta: HipcMetadata = HipcMetadata(`type`: hdr.`type`,
                                     numSendStatics: hdr.numSendStatics,
                                     numSendBuffers: hdr.numSendBuffers,
@@ -218,32 +254,35 @@ proc hipcParseRequest*(base: pointer): HipcParsedRequest {.inline, cdecl,
                                     sendPid: sphdr.sendPid,
                                     numCopyHandles: sphdr.numCopyHandles,
                                     numMoveHandles: sphdr.numMoveHandles)
-  ## !!!Ignored construct:  return ( HipcParsedRequest ) { . meta = meta , . data = hipcCalcRequestLayout ( meta , base ) , . pid = pid , } ;
-  ## Error: token expected: ; but got: {!!!
+  return HipcParsedRequest(
+      meta: meta,
+      data: hipcCalcRequestLayout(meta, base),
+      pid: pid,
+  )
 
-proc hipcParseResponse*(base: pointer): HipcResponse {.inline, cdecl,
-    importc: "hipcParseResponse".} =
+proc hipcParseResponse*(base: pointer): HipcResponse {.inline, cdecl.} =
   ##  Parse header
   var hdr: HipcHeader = HipcHeader()
-  builtinMemcpy(addr(hdr), base, sizeof((hdr)))
+  copyMem(addr(hdr), base, sizeof((hdr)))
+  var base = base
   base = cast[ptr U8](base) + sizeof((hdr))
   ##  Initialize response
   var response: HipcResponse = HipcResponse()
   response.numStatics = hdr.numSendStatics
   response.numDataWords = hdr.numDataWords
-  response.pid = hipc_Response_No_Pid
+  response.pid = Hipc_Response_No_Pid
   ##  Parse special header
-  if hdr.hasSpecialHeader:
+  if hdr.hasSpecialHeader.bool:
     var sphdr: HipcSpecialHeader = HipcSpecialHeader()
-    builtinMemcpy(addr(sphdr), base, sizeof((sphdr)))
+    copyMem(addr(sphdr), base, sizeof((sphdr)))
     base = cast[ptr U8](base) + sizeof((sphdr))
     ##  Update response
     response.numCopyHandles = sphdr.numCopyHandles
     response.numMoveHandles = sphdr.numMoveHandles
     ##  Parse PID descriptor
-    if sphdr.sendPid:
+    if sphdr.sendPid.bool:
       response.pid = cast[ptr U64](base)[]
-      base = cast[ptr U8](base) + sizeof((u64))
+      base = cast[ptr U8](base) + sizeof((U64))
   response.copyHandles = cast[ptr Handle](base)
   base = response.copyHandles + response.numCopyHandles
   ##  Move handles
