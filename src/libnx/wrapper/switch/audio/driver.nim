@@ -84,44 +84,36 @@ proc audrvVoiceSetBiquadFilter*(d: ptr AudioDriver; id: cint; biquadId: cint;
                                b1: cfloat; b2: cfloat) {.cdecl,
     importc: "audrvVoiceSetBiquadFilter".}
 proc audrvVoiceSetExtraParams*(d: ptr AudioDriver; id: cint; params: pointer;
-                              paramsSize: csize_t) {.inline, cdecl,
-    importc: "audrvVoiceSetExtraParams".} =
+                              paramsSize: csize_t) {.inline, cdecl.} =
   d.inVoices[id].extraParamsPtr = params
   d.inVoices[id].extraParamsSz = paramsSize
 
-proc audrvVoiceSetDestinationMix*(d: ptr AudioDriver; id: cint; mixId: cint) {.inline,
-    cdecl, importc: "audrvVoiceSetDestinationMix".} =
+proc audrvVoiceSetDestinationMix*(d: ptr AudioDriver; id: cint; mixId: cint) {.inline, cdecl.} =
   d.inVoices[id].destMixId = mixId.U32
   d.inVoices[id].destSplitterId = Audren_Unused_Splitter_Id.U32
 
 proc audrvVoiceSetMixFactor*(d: ptr AudioDriver; id: cint; factor: cfloat;
-                            srcChannelId: cint; destChannelId: cint) {.inline, cdecl,
-    importc: "audrvVoiceSetMixFactor".} =
+                            srcChannelId: cint; destChannelId: cint) {.inline, cdecl.} =
   var channelId = d.inVoices[id].channelIds[srcChannelId]
   d.inChannels[channelId].mix[destChannelId] = factor
 
-proc audrvVoiceSetVolume*(d: ptr AudioDriver; id: cint; volume: cfloat) {.inline, cdecl,
-    importc: "audrvVoiceSetVolume".} =
+proc audrvVoiceSetVolume*(d: ptr AudioDriver; id: cint; volume: cfloat) {.inline, cdecl.} =
   d.inVoices[id].volume = volume
 
-proc audrvVoiceSetPitch*(d: ptr AudioDriver; id: cint; pitch: cfloat) {.inline, cdecl,
-    importc: "audrvVoiceSetPitch".} =
+proc audrvVoiceSetPitch*(d: ptr AudioDriver; id: cint; pitch: cfloat) {.inline, cdecl.} =
   d.inVoices[id].pitch = pitch
 
-proc audrvVoiceSetPriority*(d: ptr AudioDriver; id: cint; priority: cint) {.inline,
-    cdecl, importc: "audrvVoiceSetPriority".} =
+proc audrvVoiceSetPriority*(d: ptr AudioDriver; id: cint; priority: cint) {.inline, cdecl.} =
   d.inVoices[id].priority = priority.U32
 
 proc audrvVoiceClearBiquadFilter*(d: ptr AudioDriver; id: cint; biquadId: cint) {.
-    inline, cdecl, importc: "audrvVoiceClearBiquadFilter".} =
+    inline, cdecl.} =
   d.inVoices[id].biquads[biquadId].enable = false
 
-proc audrvVoiceSetPaused*(d: ptr AudioDriver; id: cint; paused: bool) {.inline, cdecl,
-    importc: "audrvVoiceSetPaused".} =
+proc audrvVoiceSetPaused*(d: ptr AudioDriver; id: cint; paused: bool) {.inline, cdecl.} =
   d.inVoices[id].state = if paused: AudioRendererVoicePlayStatePaused else: AudioRendererVoicePlayStateStarted
 
-proc audrvVoiceStart*(d: ptr AudioDriver; id: cint) {.inline, cdecl,
-    importc: "audrvVoiceStart".} =
+proc audrvVoiceStart*(d: ptr AudioDriver; id: cint) {.inline, cdecl.} =
   audrvVoiceSetPaused(d, id, false)
 
 ## -----------------------------------------------------------------------------
@@ -129,18 +121,15 @@ proc audrvVoiceStart*(d: ptr AudioDriver; id: cint) {.inline, cdecl,
 proc audrvMixAdd*(d: ptr AudioDriver; sampleRate: cint; numChannels: cint): cint {.cdecl,
     importc: "audrvMixAdd".}
 proc audrvMixRemove*(d: ptr AudioDriver; id: cint) {.cdecl, importc: "audrvMixRemove".}
-proc audrvMixSetDestinationMix*(d: ptr AudioDriver; id: cint; mixId: cint) {.inline,
-    cdecl, importc: "audrvMixSetDestinationMix".} =
+proc audrvMixSetDestinationMix*(d: ptr AudioDriver; id: cint; mixId: cint) {.inline, cdecl.} =
   d.inMixes[id].destMixId = mixId.U32
   d.inMixes[id].destSplitterId = Audren_Unused_Splitter_Id.U32
 
 proc audrvMixSetMixFactor*(d: ptr AudioDriver; id: cint; factor: cfloat;
-                          srcChannelId: cint; destChannelId: cint) {.inline, cdecl,
-    importc: "audrvMixSetMixFactor".} =
+                          srcChannelId: cint; destChannelId: cint) {.inline, cdecl.} =
   d.inMixes[id].mix[srcChannelId][destChannelId] = factor
 
-proc audrvMixSetVolume*(d: ptr AudioDriver; id: cint; volume: cfloat) {.inline, cdecl,
-    importc: "audrvMixSetVolume".} =
+proc audrvMixSetVolume*(d: ptr AudioDriver; id: cint; volume: cfloat) {.inline, cdecl.} =
   d.inMixes[id].volume = volume
 
 ## -----------------------------------------------------------------------------

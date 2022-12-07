@@ -96,7 +96,7 @@ type
 
 
 proc hipcMakeSendStatic*(buffer: pointer; size: csize_t; index: U8): HipcStaticDescriptor {.
-    inline, cdecl, importc: "hipcMakeSendStatic".} =
+    inline, cdecl.} =
   return HipcStaticDescriptor(
       index: index,
       address_high: (U32)(cast[uintptr_t](buffer) shr 36),
@@ -106,7 +106,7 @@ proc hipcMakeSendStatic*(buffer: pointer; size: csize_t; index: U8): HipcStaticD
   )
 
 proc hipcMakeBuffer*(buffer: pointer; size: csize_t; mode: HipcBufferMode): HipcBufferDescriptor {.
-    inline, cdecl, importc: "hipcMakeBuffer".} =
+    inline, cdecl.} =
   return HipcBufferDescriptor(
       size_low: (U32)size,
       address_low: (U32)cast[uintptr_t](buffer),
@@ -116,36 +116,30 @@ proc hipcMakeBuffer*(buffer: pointer; size: csize_t; mode: HipcBufferMode): Hipc
       address_mid: (U32)(cast[uintptr_t](buffer) shr 32),
   )
 
-proc hipcMakeRecvStatic*(buffer: pointer; size: csize_t): HipcRecvListEntry {.inline,
-    cdecl, importc: "hipcMakeRecvStatic".} =
+proc hipcMakeRecvStatic*(buffer: pointer; size: csize_t): HipcRecvListEntry {.inline, cdecl.} =
   return HipcRecvListEntry(
       address_low: (U32)(cast[uintptr_t](buffer)),
       address_high: (U32)(cast[uintptr_t](buffer) shr 32),
       size: (U32)size,
   )
 
-proc hipcGetStaticAddress*(desc: ptr HipcStaticDescriptor): pointer {.inline, cdecl,
-    importc: "hipcGetStaticAddress".} =
+proc hipcGetStaticAddress*(desc: ptr HipcStaticDescriptor): pointer {.inline, cdecl.} =
   return cast[pointer]((desc.addressLow or
       (cast[uintptrT](desc.addressMid) shl 32) or
       (cast[uintptrT](desc.addressHigh) shl 36)))
 
-proc hipcGetStaticSize*(desc: ptr HipcStaticDescriptor): csize_t {.inline, cdecl,
-    importc: "hipcGetStaticSize".} =
+proc hipcGetStaticSize*(desc: ptr HipcStaticDescriptor): csize_t {.inline, cdecl.} =
   return desc.size
 
-proc hipcGetBufferAddress*(desc: ptr HipcBufferDescriptor): pointer {.inline, cdecl,
-    importc: "hipcGetBufferAddress".} =
+proc hipcGetBufferAddress*(desc: ptr HipcBufferDescriptor): pointer {.inline, cdecl.} =
   return cast[pointer]((desc.addressLow or
       (cast[uintptrT](desc.addressMid) shl 32) or
       (cast[uintptrT](desc.addressHigh) shl 36)))
 
-proc hipcGetBufferSize*(desc: ptr HipcBufferDescriptor): csize_t {.inline, cdecl,
-    importc: "hipcGetBufferSize".} =
+proc hipcGetBufferSize*(desc: ptr HipcBufferDescriptor): csize_t {.inline, cdecl.} =
   return desc.sizeLow or (cast[csize_t](desc.sizeHigh) shl 32)
 
-proc hipcCalcRequestLayout*(meta: HipcMetadata; base: pointer): HipcRequest {.inline,
-    cdecl, importc: "hipcCalcRequestLayout".} =
+proc hipcCalcRequestLayout*(meta: HipcMetadata; base: pointer): HipcRequest {.inline, cdecl.} =
   var base = base
   ##  Copy handles
   var copyHandles: ptr Handle = nil
@@ -192,8 +186,7 @@ proc hipcCalcRequestLayout*(meta: HipcMetadata; base: pointer): HipcRequest {.in
   )
 
 
-proc hipcMakeRequest*(base: pointer; meta: HipcMetadata): HipcRequest {.inline, cdecl,
-    importc: "hipcMakeRequest".} =
+proc hipcMakeRequest*(base: pointer; meta: HipcMetadata): HipcRequest {.inline, cdecl.} =
   ##  Write message header
   var base = base
   var hasSpecialHeader = (meta.sendPid or meta.numCopyHandles or

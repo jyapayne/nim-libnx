@@ -79,7 +79,7 @@ type
 ##  @return true if initialized.
 ##
 
-proc serviceIsActive*(s: ptr Service): bool {.inline, cdecl, importc: "serviceIsActive".} =
+proc serviceIsActive*(s: ptr Service): bool {.inline, cdecl.} =
   return s.session != Invalid_Handle
 
 ## *
@@ -88,8 +88,7 @@ proc serviceIsActive*(s: ptr Service): bool {.inline, cdecl, importc: "serviceIs
 ##  @return true if overriden.
 ##
 
-proc serviceIsOverride*(s: ptr Service): bool {.inline, cdecl,
-    importc: "serviceIsOverride".} =
+proc serviceIsOverride*(s: ptr Service): bool {.inline, cdecl.} =
   return serviceIsActive(s) and not s.ownHandle.bool and not s.objectId.bool
 
 ## *
@@ -98,7 +97,7 @@ proc serviceIsOverride*(s: ptr Service): bool {.inline, cdecl,
 ##  @return true if a domain.
 ##
 
-proc serviceIsDomain*(s: ptr Service): bool {.inline, cdecl, importc: "serviceIsDomain".} =
+proc serviceIsDomain*(s: ptr Service): bool {.inline, cdecl.} =
   return serviceIsActive(s) and s.ownHandle.bool and s.objectId.bool
 
 ## *
@@ -107,8 +106,7 @@ proc serviceIsDomain*(s: ptr Service): bool {.inline, cdecl, importc: "serviceIs
 ##  @return true if a domain subservice.
 ##
 
-proc serviceIsDomainSubservice*(s: ptr Service): bool {.inline, cdecl,
-    importc: "serviceIsDomainSubservice".} =
+proc serviceIsDomainSubservice*(s: ptr Service): bool {.inline, cdecl.} =
   return serviceIsActive(s) and not s.ownHandle.bool and s.objectId.bool
 
 ## *
@@ -117,8 +115,7 @@ proc serviceIsDomainSubservice*(s: ptr Service): bool {.inline, cdecl,
 ##  @return The object ID.
 ##
 
-proc serviceGetObjectId*(s: ptr Service): U32 {.inline, cdecl,
-    importc: "serviceGetObjectId".} =
+proc serviceGetObjectId*(s: ptr Service): U32 {.inline, cdecl.} =
   return s.objectId
 
 ## *
@@ -127,7 +124,7 @@ proc serviceGetObjectId*(s: ptr Service): U32 {.inline, cdecl,
 ##  @param[in] h IPC session handle.
 ##
 
-proc serviceCreate*(s: ptr Service; h: Handle) {.inline, cdecl, importc: "serviceCreate".} =
+proc serviceCreate*(s: ptr Service; h: Handle) {.inline, cdecl.} =
   s.session = h
   s.ownHandle = 1
   s.objectId = 0
@@ -142,7 +139,7 @@ proc serviceCreate*(s: ptr Service; h: Handle) {.inline, cdecl, importc: "servic
 ##
 
 proc serviceCreateNonDomainSubservice*(s: ptr Service; parent: ptr Service; h: Handle) {.
-    inline, cdecl, importc: "serviceCreateNonDomainSubservice".} =
+    inline, cdecl.} =
   if h != Invalid_Handle:
     s.session = h
     s.ownHandle = 1
@@ -159,7 +156,7 @@ proc serviceCreateNonDomainSubservice*(s: ptr Service; parent: ptr Service; h: H
 ##
 
 proc serviceCreateDomainSubservice*(s: ptr Service; parent: ptr Service; objectId: U32) {.
-    inline, cdecl, importc: "serviceCreateDomainSubservice".} =
+    inline, cdecl.} =
   if objectId != 0:
     s.session = parent.session
     s.ownHandle = 0
@@ -239,8 +236,7 @@ proc serviceCloneEx*(s: ptr Service; tag: U32; outS: ptr Service): Result {.inli
 ##  @return Result code.
 ##
 
-proc serviceConvertToDomain*(s: ptr Service): Result {.inline, cdecl,
-    importc: "serviceConvertToDomain".} =
+proc serviceConvertToDomain*(s: ptr Service): Result {.inline, cdecl.} =
   if not s.ownHandle.bool:
     ##  For overridden services, create a clone first.
     var rc: Result = cmifCloneCurrentObjectEx(s.session, 0, addr(s.session))
@@ -250,7 +246,7 @@ proc serviceConvertToDomain*(s: ptr Service): Result {.inline, cdecl,
   return cmifConvertCurrentObjectToDomain(s.session, addr(s.objectId))
 
 proc serviceRequestFormatProcessBuffer*(fmt: ptr CmifRequestFormat; attr: U32) {.
-    inline, cdecl, importc: "_serviceRequestFormatProcessBuffer".} =
+    inline, cdecl.} =
   if attr == 0:
     return
 
@@ -278,7 +274,7 @@ proc serviceRequestFormatProcessBuffer*(fmt: ptr CmifRequestFormat; attr: U32) {
       inc(fmt.numOutBuffers)
 
 proc serviceRequestProcessBuffer*(req: ptr CmifRequest; buf: ptr SfBuffer; attr: U32) {.
-    inline, cdecl, importc: "_serviceRequestProcessBuffer".} =
+    inline, cdecl.} =
   if attr == 0:
     return
   let isIn: bool = (attr and SfBufferAttrIn).bool
@@ -318,7 +314,7 @@ proc serviceMakeRequest*(s: ptr Service; requestId: U32; context: U32; dataSize:
                         sendPid: bool; bufferAttrs: SfBufferAttrs;
                         buffers: openArray[SfBuffer]; numObjects: U32;
                         objects: openArray[ptr Service]; numHandles: U32; handles: openArray[Handle]): pointer {.
-    inline, cdecl, importc: "serviceMakeRequest".} =
+    inline, cdecl.} =
   when defined(nx_Service_Assume_Non_Domain):
     if s.objectId:
       builtinUnreachable()

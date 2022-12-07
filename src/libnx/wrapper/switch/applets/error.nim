@@ -166,8 +166,7 @@ proc errorCodeCreateResult*(res: Result): ErrorCode {.inline, cdecl.} =
   return errorCodeCreate(2000 + r_Module(res), r_Description(res))
 
 
-proc errorCodeCreateInvalid*(): ErrorCode {.inline, cdecl,
-    importc: "errorCodeCreateInvalid".} =
+proc errorCodeCreateInvalid*(): ErrorCode {.inline, cdecl.} =
   ## *
   ##  @brief Creates an invalid \ref ErrorCode.
   ##

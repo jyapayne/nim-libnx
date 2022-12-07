@@ -15,22 +15,19 @@ type
   SmServiceName* {.bycopy.} = object
     name*: array[8, char]
 
-proc smServiceNameToU64*(name: SmServiceName): U64 {.inline, cdecl,
-    importc: "smServiceNameToU64".} =
+proc smServiceNameToU64*(name: SmServiceName): U64 {.inline, cdecl.} =
   ## / Converts a service name into a 64-bit integer.
   var ret: U64 = 0
   copyMem(addr(ret), addr(name), sizeof((U64)))
   return ret
 
-proc smServiceNameFromU64*(name: U64): SmServiceName {.inline, cdecl,
-    importc: "smServiceNameFromU64".} =
+proc smServiceNameFromU64*(name: U64): SmServiceName {.inline, cdecl.} =
   ## / Converts a 64-bit integer into a service name.
   var ret: SmServiceName = SmServiceName()
   copyMem(addr(ret), addr(name), sizeof((SmServiceName)))
   return ret
 
-proc smServiceNamesAreEqual*(a: SmServiceName; b: SmServiceName): bool {.inline, cdecl,
-    importc: "smServiceNamesAreEqual".} =
+proc smServiceNamesAreEqual*(a: SmServiceName; b: SmServiceName): bool {.inline, cdecl.} =
   ## *
   ##  @brief Checks whether two service names are equal.
   ##  @param[in] a First name.
@@ -39,8 +36,7 @@ proc smServiceNamesAreEqual*(a: SmServiceName; b: SmServiceName): bool {.inline,
   ##
   return smServiceNameToU64(a) == smServiceNameToU64(b)
 
-proc smEncodeName*(name: cstring): SmServiceName {.inline, cdecl,
-    importc: "smEncodeName".} =
+proc smEncodeName*(name: cstring): SmServiceName {.inline, cdecl.} =
   ## *
   ##  @brief Encodes a service name string as a \ref SmServiceName structure.
   ##  @param[in] name Name of the service.
@@ -99,8 +95,7 @@ proc smGetServiceOriginal*(handleOut: ptr Handle; name: SmServiceName): Result {
 ##  @return Result code.
 ##
 
-proc smGetService*(serviceOut: ptr Service; name: cstring): Result {.inline, cdecl,
-    importc: "smGetService".} =
+proc smGetService*(serviceOut: ptr Service; name: cstring): Result {.inline, cdecl.} =
   ## *
   ##  @brief Requests a service from SM.
   ##  @param[out] service_out Service structure which will be filled in.

@@ -28,7 +28,7 @@ type
 ##  @note A mutex can also be statically initialized by assigning 0 to it.
 ##
 
-proc mutexInit*(m: ptr Mutex) {.inline, cdecl, importc: "mutexInit".} =
+proc mutexInit*(m: ptr Mutex) {.inline, cdecl.} =
   m[] = INVALID_HANDLE.Mutex
 
 ## *
@@ -64,7 +64,7 @@ proc mutexIsLockedByCurrentThread*(m: ptr Mutex): bool {.cdecl,
 ##  @note A recursive mutex can also be statically initialized by assigning {0,0,0} to it.
 ##
 
-proc rmutexInit*(m: ptr RMutex) {.inline, cdecl, importc: "rmutexInit".} =
+proc rmutexInit*(m: ptr RMutex) {.inline, cdecl.} =
   m.lock = 0.Lock
   m.threadTag = 0
   m.counter = 0

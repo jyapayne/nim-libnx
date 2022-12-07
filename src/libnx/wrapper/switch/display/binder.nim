@@ -29,18 +29,14 @@ proc binderAdjustRefcount*(b: ptr Binder; addval: S32; `type`: S32): Result {.cd
     importc: "binderAdjustRefcount".}
 proc binderGetNativeHandle*(b: ptr Binder; unk0: U32; eventOut: ptr Event): Result {.
     cdecl, importc: "binderGetNativeHandle".}
-proc binderIncreaseWeakRef*(b: ptr Binder): Result {.inline, cdecl,
-    importc: "binderIncreaseWeakRef".} =
+proc binderIncreaseWeakRef*(b: ptr Binder): Result {.inline, cdecl.} =
   return binderAdjustRefcount(b, 1, 0)
 
-proc binderDecreaseWeakRef*(b: ptr Binder): Result {.inline, cdecl,
-    importc: "binderDecreaseWeakRef".} =
+proc binderDecreaseWeakRef*(b: ptr Binder): Result {.inline, cdecl.} =
   return binderAdjustRefcount(b, -1, 0)
 
-proc binderIncreaseStrongRef*(b: ptr Binder): Result {.inline, cdecl,
-    importc: "binderIncreaseStrongRef".} =
+proc binderIncreaseStrongRef*(b: ptr Binder): Result {.inline, cdecl.} =
   return binderAdjustRefcount(b, 1, 1)
 
-proc binderDecreaseStrongRef*(b: ptr Binder): Result {.inline, cdecl,
-    importc: "binderDecreaseStrongRef".} =
+proc binderDecreaseStrongRef*(b: ptr Binder): Result {.inline, cdecl.} =
   return binderAdjustRefcount(b, -1, 1)

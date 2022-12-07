@@ -26,8 +26,7 @@ type
     nextTick*: U64
     interval*: U64
 
-proc waiterForUTimer*(t: ptr UTimer): Waiter {.inline, cdecl,
-    importc: "waiterForUTimer".} =
+proc waiterForUTimer*(t: ptr UTimer): Waiter {.inline, cdecl.} =
   ## / Creates a waiter for a user-mode timer.
   var waitObj: Waiter
   waitObj.`type` = WaiterTypeWaitable

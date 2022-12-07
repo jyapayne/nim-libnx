@@ -29,10 +29,10 @@ proc nxlinkConnectToHost*(redirStdout: bool; redirStderr: bool): cint {.cdecl,
 ##  @note The socket should be closed with close() during application cleanup.
 ##
 
-proc nxlinkStdio*(): cint {.inline, cdecl, importc: "nxlinkStdio".} =
+proc nxlinkStdio*(): cint {.inline, cdecl.} =
   ## / Same as \ref nxlinkConnectToHost but redirecting both stdout/stderr.
   return nxlinkConnectToHost(true, true)
 
-proc nxlinkStdioForDebug*(): cint {.inline, cdecl, importc: "nxlinkStdioForDebug".} =
+proc nxlinkStdioForDebug*(): cint {.inline, cdecl.} =
   ## / Same as \ref nxlinkConnectToHost but redirecting only stderr.
   return nxlinkConnectToHost(false, true)

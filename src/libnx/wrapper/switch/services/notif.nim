@@ -81,7 +81,7 @@ proc notifAlarmSettingSetIsMuted*(alarmSetting: ptr NotifAlarmSetting; flag: boo
   alarmSetting.muted = flag.U8
 
 proc notifAlarmSettingSetUid*(alarmSetting: ptr NotifAlarmSetting; uid: AccountUid) {.
-    inline, cdecl, importc: "notifAlarmSettingSetUid".} =
+    inline, cdecl.} =
   ## *
   ##  @brief Sets the \ref AccountUid for the \ref NotifAlarmSetting, see NotifAlarmSetting::uid.
   ##  @param alarm_setting \ref NotifAlarmSetting

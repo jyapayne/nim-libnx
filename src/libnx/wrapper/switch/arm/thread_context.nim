@@ -110,8 +110,7 @@ type
     esr*: U32
     far*: U32
 
-proc threadContextIsAArch64*(ctx: ptr ThreadContext): bool {.inline, cdecl,
-    importc: "threadContextIsAArch64".} =
+proc threadContextIsAArch64*(ctx: ptr ThreadContext): bool {.inline, cdecl.} =
   ## *
   ##  @brief Determines whether a thread context belong to an AArch64 process based on the PSR.
   ##  @param[in] ctx Thread context to which PSTATE/cspr has been dumped to.
@@ -120,8 +119,7 @@ proc threadContextIsAArch64*(ctx: ptr ThreadContext): bool {.inline, cdecl,
 
   return (ctx.psr and 0x10) == 0
 
-proc threadExceptionIsAArch64*(ctx: ptr ThreadExceptionDump): bool {.inline, cdecl,
-    importc: "threadExceptionIsAArch64".} =
+proc threadExceptionIsAArch64*(ctx: ptr ThreadExceptionDump): bool {.inline, cdecl.} =
   ## *
   ##  @brief Determines whether a ThreadExceptionDump belongs to an AArch64 process based on the PSTATE.
   ##  @param[in] ctx ThreadExceptionDump.

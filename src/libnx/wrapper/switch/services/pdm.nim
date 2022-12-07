@@ -313,6 +313,5 @@ proc pdmqryGetRecentlyPlayedApplicationUpdateEvent*(outEvent: ptr Event): Result
 ##  @param[in] timestamp Input timestamp.
 ##
 
-proc pdmPlayTimestampToPosix*(timestamp: U32): U64 {.inline, cdecl,
-    importc: "pdmPlayTimestampToPosix".} =
+proc pdmPlayTimestampToPosix*(timestamp: U32): U64 {.inline, cdecl.} =
   return (cast[U64](timestamp)) * 60 + 946598400

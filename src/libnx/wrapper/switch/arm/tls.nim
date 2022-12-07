@@ -14,5 +14,5 @@ export types
 ##  @return The thread local storage buffer.
 ##
 
-proc armGetTls*(): pointer {.inline, cdecl, importc: "armGetTls".} =
+proc armGetTls*(): pointer {.inline, cdecl.} =
   {.emit: "__asm__ (\"mrs %x[data], tpidrro_el0\" : [data] \"=r\" (`result`));".}

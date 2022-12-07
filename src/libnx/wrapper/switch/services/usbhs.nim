@@ -183,14 +183,12 @@ proc usbHsAcquireUsbIf*(s: ptr UsbHsClientIfSession; `interface`: ptr UsbHsInter
 proc usbHsIfClose*(s: ptr UsbHsClientIfSession) {.cdecl, importc: "usbHsIfClose".}
 ## / Returns whether the specified interface session was initialized.
 
-proc usbHsIfIsActive*(s: ptr UsbHsClientIfSession): bool {.inline, cdecl,
-    importc: "usbHsIfIsActive".} =
+proc usbHsIfIsActive*(s: ptr UsbHsClientIfSession): bool {.inline, cdecl.} =
   return serviceIsActive(addr(s.s))
 
 ## / Returns the ID which can be used for comparing with the ID in the output interfaces from \ref usbHsQueryAcquiredInterfaces.
 
-proc usbHsIfGetID*(s: ptr UsbHsClientIfSession): S32 {.inline, cdecl,
-    importc: "usbHsIfGetID".} =
+proc usbHsIfGetID*(s: ptr UsbHsClientIfSession): S32 {.inline, cdecl.} =
   return s.id
 
 ## *

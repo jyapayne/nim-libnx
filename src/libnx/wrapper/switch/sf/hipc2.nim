@@ -187,12 +187,9 @@ proc hipcCalcRequestLayout*(meta: HipcMetadata; base: pointer): HipcRequest {.in
 proc hipcMakeRequest*(base: pointer; meta: HipcMetadata): HipcRequest {.inline, cdecl.} =
   ##  Write message header
   var base = base
-  var hasSpecialHeader: bool = meta.sendPid or meta.numCopyHandles or
-      meta.numMoveHandles
+  var hasSpecialHeader: bool = (meta.sendPid or meta.numCopyHandles or meta.numMoveHandles).bool
   var hdr: ptr HipcHeader = cast[ptr HipcHeader](base)
   base = hdr + 1
-  ## !!!Ignored construct:  * hdr = ( HipcHeader ) { . type = meta . type , . num_send_statics = meta . num_send_statics , . num_send_buffers = meta . num_send_buffers , . num_recv_buffers = meta . num_recv_buffers , . num_exch_buffers = meta . num_exch_buffers , . num_data_words = meta . num_data_words , . recv_static_mode = meta . num_recv_statics ? ( meta . num_recv_statics != HIPC_AUTO_RECV_STATIC ? 2u + meta . num_recv_statics : 2u ) : 0u , . padding = 0 , . recv_list_offset = 0 , . has_special_header = has_special_header , } ;
-  ## Error: expected ';'!!!
   hdr[] = HipcHeader(
       type: meta.type,
       num_send_statics: meta.num_send_statics,

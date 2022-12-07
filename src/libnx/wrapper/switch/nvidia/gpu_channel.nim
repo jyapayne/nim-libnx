@@ -33,15 +33,12 @@ proc nvGpuChannelGetErrorNotification*(c: ptr NvGpuChannel;
     importc: "nvGpuChannelGetErrorNotification".}
 proc nvGpuChannelGetErrorInfo*(c: ptr NvGpuChannel; error: ptr NvError): Result {.cdecl,
     importc: "nvGpuChannelGetErrorInfo".}
-proc nvGpuChannelGetSyncpointId*(c: ptr NvGpuChannel): U32 {.inline, cdecl,
-    importc: "nvGpuChannelGetSyncpointId".} =
+proc nvGpuChannelGetSyncpointId*(c: ptr NvGpuChannel): U32 {.inline, cdecl.} =
   return c.fence.id
 
-proc nvGpuChannelGetFence*(c: ptr NvGpuChannel; fenceOut: ptr NvFence) {.inline, cdecl,
-    importc: "nvGpuChannelGetFence".} =
+proc nvGpuChannelGetFence*(c: ptr NvGpuChannel; fenceOut: ptr NvFence) {.inline, cdecl.} =
   fenceOut.id = c.fence.id
   fenceOut.value = c.fence.value + c.fenceIncr
 
-proc nvGpuChannelIncrFence*(c: ptr NvGpuChannel) {.inline, cdecl,
-    importc: "nvGpuChannelIncrFence".} =
+proc nvGpuChannelIncrFence*(c: ptr NvGpuChannel) {.inline, cdecl.} =
   inc(c.fenceIncr)

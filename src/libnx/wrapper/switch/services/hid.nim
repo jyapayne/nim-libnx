@@ -1360,7 +1360,7 @@ proc hidGetKeyboardStates*(states: ptr HidKeyboardState; count: csize_t): csize_
 ##
 
 proc hidKeyboardStateGetKey*(state: ptr HidKeyboardState; key: HidKeyboardKey): bool {.
-    inline, cdecl, importc: "hidKeyboardStateGetKey".} =
+    inline, cdecl.} =
   ## *
   ##  @brief Gets the state of a key in a \ref HidKeyboardState.
   ##  @param[in] state \ref HidKeyboardState.

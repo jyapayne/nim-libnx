@@ -12,8 +12,7 @@ proc nvFenceInit*(): Result {.cdecl, importc: "nvFenceInit".}
 proc nvFenceExit*() {.cdecl, importc: "nvFenceExit".}
 proc nvFenceWait*(f: ptr NvFence; timeoutUs: S32): Result {.cdecl,
     importc: "nvFenceWait".}
-proc nvMultiFenceCreate*(mf: ptr NvMultiFence; fence: ptr NvFence) {.inline, cdecl,
-    importc: "nvMultiFenceCreate".} =
+proc nvMultiFenceCreate*(mf: ptr NvMultiFence; fence: ptr NvFence) {.inline, cdecl.} =
   mf.numFences = 1
   mf.fences[0] = fence[]
 

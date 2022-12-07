@@ -18,7 +18,7 @@ type
 ##  @param[in] c Condition variable object.
 ##
 
-proc condvarInit*(c: ptr CondVar) {.inline, cdecl, importc: "condvarInit".} =
+proc condvarInit*(c: ptr CondVar) {.inline, cdecl.} =
   c[] = 0
 
 ## *
@@ -40,8 +40,7 @@ proc condvarWaitTimeout*(c: ptr CondVar; m: ptr Mutex; timeout: U64): Result {.c
 ##  @remark On function return, the underlying mutex is acquired.
 ##
 
-proc condvarWait*(c: ptr CondVar; m: ptr Mutex): Result {.inline, cdecl,
-    importc: "condvarWait".} =
+proc condvarWait*(c: ptr CondVar; m: ptr Mutex): Result {.inline, cdecl.} =
   return condvarWaitTimeout(c, m, uint64.high)
 
 ## *
@@ -51,8 +50,7 @@ proc condvarWait*(c: ptr CondVar; m: ptr Mutex): Result {.inline, cdecl,
 ##  @return Result code.
 ##
 
-proc condvarWake*(c: ptr CondVar; num: cint): Result {.inline, cdecl,
-    importc: "condvarWake".} =
+proc condvarWake*(c: ptr CondVar; num: cint): Result {.inline, cdecl.} =
   svcSignalProcessWideKey(c, num)
   return 0
 
@@ -62,7 +60,7 @@ proc condvarWake*(c: ptr CondVar; num: cint): Result {.inline, cdecl,
 ##  @return Result code.
 ##
 
-proc condvarWakeOne*(c: ptr CondVar): Result {.inline, cdecl, importc: "condvarWakeOne".} =
+proc condvarWakeOne*(c: ptr CondVar): Result {.inline, cdecl.} =
   return condvarWake(c, 1)
 
 ## *
@@ -71,5 +69,5 @@ proc condvarWakeOne*(c: ptr CondVar): Result {.inline, cdecl, importc: "condvarW
 ##  @return Result code.
 ##
 
-proc condvarWakeAll*(c: ptr CondVar): Result {.inline, cdecl, importc: "condvarWakeAll".} =
+proc condvarWakeAll*(c: ptr CondVar): Result {.inline, cdecl.} =
   return condvarWake(c, -1)

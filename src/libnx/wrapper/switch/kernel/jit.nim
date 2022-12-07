@@ -70,7 +70,7 @@ proc jitClose*(j: ptr Jit): Result {.cdecl, importc: "jitClose".}
 ##  @return Pointer to alias of the JIT buffer that can be written to.
 ##
 
-proc jitGetRwAddr*(j: ptr Jit): pointer {.inline, cdecl, importc: "jitGetRwAddr".} =
+proc jitGetRwAddr*(j: ptr Jit): pointer {.inline, cdecl.} =
   return j.rwAddr
 
 ## *
@@ -79,5 +79,5 @@ proc jitGetRwAddr*(j: ptr Jit): pointer {.inline, cdecl, importc: "jitGetRwAddr"
 ##  @return Pointer to alias of the JIT buffer that can be executed.
 ##
 
-proc jitGetRxAddr*(j: ptr Jit): pointer {.inline, cdecl, importc: "jitGetRxAddr".} =
+proc jitGetRxAddr*(j: ptr Jit): pointer {.inline, cdecl.} =
   return j.rxAddr

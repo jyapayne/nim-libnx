@@ -16,7 +16,7 @@ type
     wevent*: Handle            ## /< Write-only event handle
     autoclear*: bool           ## /< Autoclear flag
 
-proc waiterForEvent*(t: ptr Event): Waiter {.inline, cdecl, importc: "waiterForEvent".} =
+proc waiterForEvent*(t: ptr Event): Waiter {.inline, cdecl.} =
   ## / Creates a \ref Waiter for a kernel-mode event.
   var waitObj: Waiter
   waitObj.`type` = if t.autoclear: WaiterTypeHandleWithClear else: WaiterTypeHandle
@@ -47,7 +47,7 @@ proc eventClose*(t: ptr Event) {.cdecl, importc: "eventClose".}
 ##  @param[in] t Pointer to \ref Event structure.
 ##
 
-proc eventActive*(t: ptr Event): bool {.inline, cdecl, importc: "eventActive".} =
+proc eventActive*(t: ptr Event): bool {.inline, cdecl.} =
   ## *
   ##  @brief Returns whether an \ref Event is initialized.
   ##  @param[in] t Pointer to \ref Event structure.

@@ -129,6 +129,5 @@ proc accountGetPreselectedUser*(uid: ptr AccountUid): Result {.cdecl,
 ##  @param[in] Uid \ref AccountUid
 ##
 
-proc accountUidIsValid*(uid: ptr AccountUid): bool {.inline, cdecl,
-    importc: "accountUidIsValid".} =
+proc accountUidIsValid*(uid: ptr AccountUid): bool {.inline, cdecl.} =
   return uid.uid[0] != 0 or uid.uid[1] != 0

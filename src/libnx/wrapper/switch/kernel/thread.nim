@@ -21,8 +21,7 @@ type
     next*: ptr Thread
     prevNext*: ptr ptr Thread
 
-proc waiterForThread*(t: ptr Thread): Waiter {.inline, cdecl,
-    importc: "waiterForThread".} =
+proc waiterForThread*(t: ptr Thread): Waiter {.inline, cdecl.} =
   ## / Creates a \ref Waiter for a \ref Thread.
   return waiterForHandle(t.handle)
 

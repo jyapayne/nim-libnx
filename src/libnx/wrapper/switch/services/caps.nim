@@ -251,22 +251,19 @@ proc capsGetDefaultStartDateTime*(): CapsAlbumFileDateTime {.inline, cdecl.} =
   ## / Gets the default start_datetime.
   return CapsAlbumFileDateTime(year: 1970, month: 1, day: 1)
 
-proc capsGetDefaultEndDateTime*(): CapsAlbumFileDateTime {.inline, cdecl,
-    importc: "capsGetDefaultEndDateTime".} =
+proc capsGetDefaultEndDateTime*(): CapsAlbumFileDateTime {.inline, cdecl.} =
   ## / Gets the default end_datetime.
   return CapsAlbumFileDateTime(year: 3000,month: 1,day: 1)
 
 proc capsConvertApplicationAlbumFileEntryToApplicationAlbumEntry*(
     `out`: ptr CapsApplicationAlbumEntry; `in`: ptr CapsApplicationAlbumFileEntry) {.
-    inline, cdecl,
-    importc: "capsConvertApplicationAlbumFileEntryToApplicationAlbumEntry".} =
+    inline, cdecl.} =
   ## / Convert a \ref CapsApplicationAlbumFileEntry to \ref CapsApplicationAlbumEntry.
   `out`[] = `in`.entry
 
 proc capsConvertApplicationAlbumEntryToApplicationAlbumFileEntry*(
     `out`: ptr CapsApplicationAlbumFileEntry; `in`: ptr CapsApplicationAlbumEntry) {.
-    inline, cdecl,
-    importc: "capsConvertApplicationAlbumEntryToApplicationAlbumFileEntry".} =
+    inline, cdecl.} =
   ## / Convert a \ref CapsApplicationAlbumEntry to \ref CapsApplicationAlbumFileEntry. Should only be used on [7.0.0+].
   `out`.entry = `in`[]
   `out`.datetime = `in`[].v1.datetime

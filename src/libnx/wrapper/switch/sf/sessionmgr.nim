@@ -21,6 +21,5 @@ proc sessionmgrAttachClient*(mgr: ptr SessionMgr): cint {.cdecl,
     importc: "sessionmgrAttachClient".}
 proc sessionmgrDetachClient*(mgr: ptr SessionMgr; slot: cint) {.cdecl,
     importc: "sessionmgrDetachClient".}
-proc sessionmgrGetClientSession*(mgr: ptr SessionMgr; slot: cint): Handle {.inline,
-    cdecl, importc: "sessionmgrGetClientSession".} =
+proc sessionmgrGetClientSession*(mgr: ptr SessionMgr; slot: cint): Handle {.inline, cdecl.} =
   return mgr.sessions[slot]

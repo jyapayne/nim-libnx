@@ -95,8 +95,7 @@ proc viOpenDisplay*(displayName: cstring; display: ptr ViDisplay): Result {.cdec
     importc: "viOpenDisplay".}
 proc viCloseDisplay*(display: ptr ViDisplay): Result {.cdecl,
     importc: "viCloseDisplay".}
-proc viOpenDefaultDisplay*(display: ptr ViDisplay): Result {.inline, cdecl,
-    importc: "viOpenDefaultDisplay".} =
+proc viOpenDefaultDisplay*(display: ptr ViDisplay): Result {.inline, cdecl.} =
   return viOpenDisplay("Default", display)
 
 proc viGetDisplayResolution*(display: ptr ViDisplay; width: ptr S32; height: ptr S32): Result {.

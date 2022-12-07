@@ -13,15 +13,15 @@ const
   HTCS_PORT_NAME_MAX* = 32
   HTCS_SESSION_COUNT_MAX* = 0x10
   HTCS_SOCKET_COUNT_MAX* = 40
-  HTCS_FD_SET_SIZE* = htcs_Socket_Count_Max
+  HTCS_FD_SET_SIZE* = Htcs_Socket_Count_Max
 
 type
   HtcsAddressFamilyType* = uint16
   HtcsPeerName* {.bycopy.} = object
-    name*: array[htcs_Peer_Name_Max, char]
+    name*: array[Htcs_Peer_Name_Max, char]
 
   HtcsPortName* {.bycopy.} = object
-    name*: array[htcs_Port_Name_Max, char]
+    name*: array[Htcs_Port_Name_Max, char]
 
   HtcsSockAddr* {.bycopy.} = object
     family*: HtcsAddressFamilyType
@@ -33,7 +33,7 @@ type
     tvUsec*: S64
 
   HtcsFdSet* {.bycopy.} = object
-    fds*: array[htcs_Fd_Set_Size, cint]
+    fds*: array[Htcs_Fd_Set_Size, cint]
 
   HtcsSocketError* = enum
     HTCS_ENONE = 0, HTCS_EACCES = 2, HTCS_EADDRINUSE = 3, HTCS_EADDRNOTAVAIL = 4,
@@ -43,7 +43,6 @@ type
     HTCS_EINVAL = 28, HTCS_EIO = 29, HTCS_EISCONN = 30, HTCS_EMFILE = 33,
     HTCS_EMSGSIZE = 35, HTCS_ENETDOWN = 38, HTCS_ENETRESET = 39, HTCS_ENOBUFS = 42,
     HTCS_ENOMEM = 49, HTCS_ENOTCONN = 56, HTCS_ETIMEDOUT = 76, HTCS_EUNKNOWN = 79,
-    HTCS_EWOULDBLOCK = htcs_Eagain
   HtcsMessageFlag* = enum
     HTCS_MSG_PEEK = 1, HTCS_MSG_WAITALL = 2
   HtcsShutdownType* = enum
@@ -58,30 +57,31 @@ type
     s*: Service
 
 
+const HTCS_EWOULDBLOCK* = Htcs_Eagain
 
 
 
 
 
 
-## / Initialize the HTCS service.
 
 proc htcsInitialize*(numSessions: U32): Result {.cdecl, importc: "htcsInitialize".}
-## / Exit the HTCS service.
+## / Initialize the HTCS service.
 
 proc htcsExit*() {.cdecl, importc: "htcsExit".}
-## / Gets the Service object for the actual HTCS manager service session.
+## / Exit the HTCS service.
 
 proc htcsGetManagerServiceSession*(): ptr Service {.cdecl,
     importc: "htcsGetManagerServiceSession".}
-## / Gets the Service object for the actual HTCS monitor service session.
+## / Gets the Service object for the actual HTCS manager service session.
 
 proc htcsGetMonitorServiceSession*(): ptr Service {.cdecl,
     importc: "htcsGetMonitorServiceSession".}
-## / Manager functionality.
+## / Gets the Service object for the actual HTCS monitor service session.
 
 proc htcsGetPeerNameAny*(`out`: ptr HtcsPeerName): Result {.cdecl,
     importc: "htcsGetPeerNameAny".}
+## / Manager functionality.
 proc htcsGetDefaultHostName*(`out`: ptr HtcsPeerName): Result {.cdecl,
     importc: "htcsGetDefaultHostName".}
 proc htcsCreateSocket*(outErr: ptr S32; `out`: ptr HtcsSocket;
@@ -95,6 +95,7 @@ proc htcsEndSelect*(outErr: ptr S32; outCount: ptr S32; read: ptr S32; numRead: 
                    write: ptr S32; numWrite: csize_t; `except`: ptr S32;
                    numExcept: csize_t; taskId: U32): Result {.cdecl,
     importc: "htcsEndSelect".}
+
 ## / Socket functionality.
 
 proc htcsSocketClose*(s: ptr HtcsSocket; outErr: ptr S32; outRes: ptr S32): Result {.cdecl,

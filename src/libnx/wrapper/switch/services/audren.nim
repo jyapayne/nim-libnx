@@ -247,16 +247,14 @@ type
 
 
 
-proc audrenGetRevision*(): U32 {.inline, cdecl, importc: "audrenGetRevision".} =
+proc audrenGetRevision*(): U32 {.inline, cdecl.} =
   var gAudrenRevision: U32
   return gAudrenRevision
 
-proc audrenGetMemPoolCount*(config: ptr AudioRendererConfig): cint {.inline, cdecl,
-    importc: "audrenGetMemPoolCount".} =
+proc audrenGetMemPoolCount*(config: ptr AudioRendererConfig): cint {.inline, cdecl.} =
   return config.numEffects + 4 * config.numVoices
 
-proc audrenGetInputParamSize*(config: ptr AudioRendererConfig): csize_t {.inline,
-    cdecl, importc: "audrenGetInputParamSize".} =
+proc audrenGetInputParamSize*(config: ptr AudioRendererConfig): csize_t {.inline, cdecl.} =
   var size: csize_t = 0
   inc(size, sizeof((AudioRendererUpdateDataHeader)))
   inc(size, sizeof((AudioRendererBehaviorInfoIn)))
@@ -270,8 +268,7 @@ proc audrenGetInputParamSize*(config: ptr AudioRendererConfig): csize_t {.inline
   inc(size, sizeof((AudioRendererPerformanceBufferInfoIn)))
   return size
 
-proc audrenGetOutputParamSize*(config: ptr AudioRendererConfig): csize_t {.inline,
-    cdecl, importc: "audrenGetOutputParamSize".} =
+proc audrenGetOutputParamSize*(config: ptr AudioRendererConfig): csize_t {.inline, cdecl.} =
   var size: csize_t = 0
   inc(size, sizeof((AudioRendererUpdateDataHeader)))
   inc(size, sizeof((AudioRendererMemPoolInfoOut)) *

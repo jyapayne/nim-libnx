@@ -57,7 +57,7 @@ proc padConfigureInput*(maxPlayers: U32; styleSet: U32) {.cdecl,
 ##  @brief Same as \ref padInitialize, but taking a bitfield of controller IDs directly.
 ##  @param[in] pad Pointer to \ref PadState.
 ##  @param[in] mask Bitfield of controller IDs (each bit's position indicates a different \ref HidNpadIdType value).
-proc padInitializeWithMask*(pad: ptr PadState, mask: U64) {.inline, cdecl, importc: "padInitializeWithMask".}
+proc padInitializeWithMask*(pad: ptr PadState, mask: U64) {.cdecl, importc: "padInitializeWithMask".}
 
 proc padInitialize*(pad: ptr PadState, padIds: varargs[HidNpadIdType]) {.inline, cdecl.} =
   var mask: U64 = 0
@@ -71,7 +71,7 @@ proc padInitialize*(pad: ptr PadState, padIds: varargs[HidNpadIdType]) {.inline,
 ##  @remark Use this function if you want to accept input from any controller.
 ##
 
-proc padInitializeAny*(pad: ptr PadState) {.inline, cdecl, importc: "padInitializeAny".} =
+proc padInitializeAny*(pad: ptr PadState) {.inline, cdecl.} =
   padInitializeWithMask(pad, Pad_Any_Id_Mask)
 
 ## *
@@ -80,8 +80,7 @@ proc padInitializeAny*(pad: ptr PadState) {.inline, cdecl, importc: "padInitiali
 ##  @remark Use this function if you just want to accept input for a single-player application.
 ##
 
-proc padInitializeDefault*(pad: ptr PadState) {.inline, cdecl,
-    importc: "padInitializeDefault".} =
+proc padInitializeDefault*(pad: ptr PadState) {.inline, cdecl.} =
     padInitialize(pad, HidNpadIdTypeNo1, HidNpadIdTypeHandheld)
 
 ## *
@@ -97,7 +96,7 @@ proc padUpdate*(pad: ptr PadState) {.cdecl, importc: "padUpdate".}
 ##  @remark \ref padUpdate must have been previously called.
 ##
 
-proc padIsHandheld*(pad: ptr PadState): bool {.inline, cdecl, importc: "padIsHandheld".} =
+proc padIsHandheld*(pad: ptr PadState): bool {.inline, cdecl.} =
   return pad.activeHandheld
 
 ## *
@@ -108,8 +107,7 @@ proc padIsHandheld*(pad: ptr PadState): bool {.inline, cdecl, importc: "padIsHan
 ##  @remark \ref padUpdate must have been previously called.
 ##
 
-proc padIsNpadActive*(pad: ptr PadState; id: HidNpadIdType): bool {.inline, cdecl,
-    importc: "padIsNpadActive".} =
+proc padIsNpadActive*(pad: ptr PadState; id: HidNpadIdType): bool {.inline, cdecl.} =
   if id <= HidNpadIdTypeNo8:
     return bool(pad.activeIdMask and (bit(id.uint8)))
   elif id == HidNpadIdTypeHandheld:
@@ -124,7 +122,7 @@ proc padIsNpadActive*(pad: ptr PadState; id: HidNpadIdType): bool {.inline, cdec
 ##  @remark \ref padUpdate must have been previously called.
 ##
 
-proc padGetStyleSet*(pad: ptr PadState): U32 {.inline, cdecl, importc: "padGetStyleSet".} =
+proc padGetStyleSet*(pad: ptr PadState): U32 {.inline, cdecl.} =
   return pad.styleSet
 
 ## *
@@ -134,8 +132,7 @@ proc padGetStyleSet*(pad: ptr PadState): U32 {.inline, cdecl, importc: "padGetSt
 ##  @remark \ref padUpdate must have been previously called.
 ##
 
-proc padGetAttributes*(pad: ptr PadState): U32 {.inline, cdecl,
-    importc: "padGetAttributes".} =
+proc padGetAttributes*(pad: ptr PadState): U32 {.inline, cdecl.} =
   return pad.attributes
 
 ## *
@@ -145,8 +142,7 @@ proc padGetAttributes*(pad: ptr PadState): U32 {.inline, cdecl,
 ##  @remark \ref padUpdate must have been previously called.
 ##
 
-proc padIsConnected*(pad: ptr PadState): bool {.inline, cdecl,
-    importc: "padIsConnected".} =
+proc padIsConnected*(pad: ptr PadState): bool {.inline, cdecl.} =
   return bool(pad.attributes and HidNpadAttributeIsConnected.uint32)
 
 ## *
@@ -156,7 +152,7 @@ proc padIsConnected*(pad: ptr PadState): bool {.inline, cdecl,
 ##  @remark \ref padUpdate must have been previously called.
 ##
 
-proc padGetButtons*(pad: ptr PadState): U64 {.inline, cdecl, importc: "padGetButtons".} =
+proc padGetButtons*(pad: ptr PadState): U64 {.inline, cdecl.} =
   return pad.buttonsCur
 
 ## *
@@ -166,8 +162,7 @@ proc padGetButtons*(pad: ptr PadState): U64 {.inline, cdecl, importc: "padGetBut
 ##  @remark \ref padUpdate must have been previously called.
 ##
 
-proc padGetButtonsDown*(pad: ptr PadState): U64 {.inline, cdecl,
-    importc: "padGetButtonsDown".} =
+proc padGetButtonsDown*(pad: ptr PadState): U64 {.inline, cdecl.} =
   return not pad.buttonsOld and pad.buttonsCur
 
 ## *
@@ -177,8 +172,7 @@ proc padGetButtonsDown*(pad: ptr PadState): U64 {.inline, cdecl,
 ##  @remark \ref padUpdate must have been previously called.
 ##
 
-proc padGetButtonsUp*(pad: ptr PadState): U64 {.inline, cdecl,
-    importc: "padGetButtonsUp".} =
+proc padGetButtonsUp*(pad: ptr PadState): U64 {.inline, cdecl.} =
   return pad.buttonsOld and not pad.buttonsCur
 
 ## *
@@ -189,8 +183,7 @@ proc padGetButtonsUp*(pad: ptr PadState): U64 {.inline, cdecl,
 ##  @remark \ref padUpdate must have been previously called.
 ##
 
-proc padGetStickPos*(pad: ptr PadState; i: cuint): HidAnalogStickState {.inline, cdecl,
-    importc: "padGetStickPos".} =
+proc padGetStickPos*(pad: ptr PadState; i: cuint): HidAnalogStickState {.inline, cdecl.} =
   return pad.sticks[i]
 
 ## *
@@ -202,8 +195,7 @@ proc padGetStickPos*(pad: ptr PadState; i: cuint): HidAnalogStickState {.inline,
 ##  @remark \ref HidNpadStyleTag_NpadGc must have been previously configured as a supported style in \ref padConfigureInput for GC trigger data to be readable.
 ##
 
-proc padGetGcTriggerPos*(pad: ptr PadState; i: cuint): U32 {.inline, cdecl,
-    importc: "padGetGcTriggerPos".} =
+proc padGetGcTriggerPos*(pad: ptr PadState; i: cuint): U32 {.inline, cdecl.} =
   return pad.gcTriggers[i]
 
 ## *
@@ -213,8 +205,7 @@ proc padGetGcTriggerPos*(pad: ptr PadState; i: cuint): U32 {.inline, cdecl,
 ##  @param[in] repeat Number of input updates between autogenerated repeat button presses.
 ##
 
-proc padRepeaterInitialize*(r: ptr PadRepeater; delay: U16; repeat: U16) {.inline, cdecl,
-    importc: "padRepeaterInitialize".} =
+proc padRepeaterInitialize*(r: ptr PadRepeater; delay: U16; repeat: U16) {.inline, cdecl.} =
   r.buttonMask = 0
   r.counter = 0
   r.delay = delay
@@ -235,6 +226,5 @@ proc padRepeaterUpdate*(r: ptr PadRepeater; buttonMask: U64) {.cdecl,
 ##  @remark It is suggested to bitwise-OR the return value of this function with that of \ref padGetButtonsDown.
 ##
 
-proc padRepeaterGetButtons*(r: ptr PadRepeater): U64 {.inline, cdecl,
-    importc: "padRepeaterGetButtons".} =
+proc padRepeaterGetButtons*(r: ptr PadRepeater): U64 {.inline, cdecl.} =
   return if r.counter == 0: r.buttonMask else: 0

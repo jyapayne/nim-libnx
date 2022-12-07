@@ -24,6 +24,16 @@ type
     udpRxBufSize*: U32         ## /< Size of the UDP receive buffer (typically 0xA500 bytes).
     sbEfficiency*: U32         ## /< Number of buffers for each socket (standard values range from 1 to 8).
 
+type
+  SockAddr* = object
+  FdSet* = object
+  TimeVal* = object
+  NfdsT* = uint
+  PollFd* = object
+  SockLenT* = uint32
+  TimeSpec* = object
+    tv_sec: clong
+    tv_nsec: clong
 
 var gBsdResult* {.importc: "g_bsdResult".}: Result
 

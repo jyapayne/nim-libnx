@@ -41,7 +41,7 @@ type
     sendPid*: U32
 
 
-proc tipcCreate*(s: ptr TipcService; h: Handle) {.inline, cdecl, importc: "tipcCreate".} =
+proc tipcCreate*(s: ptr TipcService; h: Handle) {.inline, cdecl.} =
   ## *
   ##  @brief Creates a tipc service object from an IPC session handle.
   ##  @param[out] s TIPC service object.
@@ -49,7 +49,7 @@ proc tipcCreate*(s: ptr TipcService; h: Handle) {.inline, cdecl, importc: "tipcC
   ##
   s.session = h
 
-proc tipcClose*(s: ptr TipcService) {.inline, cdecl, importc: "tipcClose".} =
+proc tipcClose*(s: ptr TipcService) {.inline, cdecl.} =
   ## *
   ##  @brief Closes a tipc service.
   ##  @param[in] s TIPC service object.
@@ -60,30 +60,25 @@ proc tipcClose*(s: ptr TipcService) {.inline, cdecl, importc: "tipcClose".} =
   s[] = TipcService()
 
 proc tipcRequestInBuffer*(req: ptr HipcRequest; buffer: pointer; size: csize_t;
-                         mode: HipcBufferMode) {.inline, cdecl,
-    importc: "tipcRequestInBuffer".} =
+                         mode: HipcBufferMode) {.inline, cdecl.} =
   req.sendBuffers += 1
   req.sendBuffers[] = hipcMakeBuffer(buffer, size, mode)
 
 proc tipcRequestOutBuffer*(req: ptr HipcRequest; buffer: pointer; size: csize_t;
-                          mode: HipcBufferMode) {.inline, cdecl,
-    importc: "tipcRequestOutBuffer".} =
+                          mode: HipcBufferMode) {.inline, cdecl.} =
   req.recvBuffers += 1
   req.recvBuffers[] = hipcMakeBuffer(buffer, size, mode)
 
 proc tipcRequestInOutBuffer*(req: ptr HipcRequest; buffer: pointer; size: csize_t;
-                            mode: HipcBufferMode) {.inline, cdecl,
-    importc: "tipcRequestInOutBuffer".} =
+                            mode: HipcBufferMode) {.inline, cdecl.} =
   req.exchBuffers += 1
   req.exchBuffers[] = hipcMakeBuffer(buffer, size, mode)
 
-proc tipcRequestHandle*(req: ptr HipcRequest; handle: Handle) {.inline, cdecl,
-    importc: "tipcRequestHandle".} =
+proc tipcRequestHandle*(req: ptr HipcRequest; handle: Handle) {.inline, cdecl.} =
   req.copyHandles += 1
   req.copyHandles[] = handle
 
-proc tipcRequestFormatProcessBuffer*(fmt: ptr TipcRequestFormat; attr: U32) {.inline,
-    cdecl, importc: "_tipcRequestFormatProcessBuffer".} =
+proc tipcRequestFormatProcessBuffer*(fmt: ptr TipcRequestFormat; attr: U32) {.inline, cdecl.} =
   if not attr.bool:
     return
   let isIn: bool = (attr and SfBufferAttrIn) != 0
@@ -97,7 +92,7 @@ proc tipcRequestFormatProcessBuffer*(fmt: ptr TipcRequestFormat; attr: U32) {.in
       inc(fmt.numOutBuffers)
 
 proc tipcRequestProcessBuffer*(req: ptr HipcRequest; buf: ptr SfBuffer; attr: U32) {.
-    inline, cdecl, importc: "_tipcRequestProcessBuffer".} =
+    inline, cdecl.} =
   if not attr.bool:
     return
   let isIn: bool = (attr and SfBufferAttrIn).bool
@@ -157,13 +152,11 @@ proc tipcMakeRequest*(requestId: U32; dataSize: U32; sendPid: bool;
   tipcRequestProcessBuffer(addr(req), addr(buffers[7]), bufferAttrs.attr7)
   return req.dataWords
 
-proc tipcResponseGetCopyHandle*(res: ptr HipcResponse): Handle {.inline, cdecl,
-    importc: "tipcResponseGetCopyHandle".} =
+proc tipcResponseGetCopyHandle*(res: ptr HipcResponse): Handle {.inline, cdecl.} =
   res.copyHandles += 1
   return res.copyHandles[]
 
-proc tipcResponseGetMoveHandle*(res: ptr HipcResponse): Handle {.inline, cdecl,
-    importc: "tipcResponseGetMoveHandle".} =
+proc tipcResponseGetMoveHandle*(res: ptr HipcResponse): Handle {.inline, cdecl.} =
   res.moveHandles += 1
   return res.moveHandles[]
 
@@ -184,7 +177,7 @@ proc tipcResponseGetHandle*(res: ptr HipcResponse; ty: SfOutHandleAttr;
 proc tipcParseResponse*(outSize: U32; outData: ptr pointer; numOutObjects: U32;
                        outObjects: ptr TipcService;
                        outHandleAttrs: SfOutHandleAttrs; outHandles: ptr Handle): Result {.
-    inline, cdecl, importc: "tipcParseResponse".} =
+    inline, cdecl.} =
   var res: HipcResponse = hipcParseResponse(armGetTls())
   res.dataWords += 1
   var rc: Result = res.dataWords[]
@@ -208,8 +201,7 @@ proc tipcParseResponse*(outSize: U32; outData: ptr pointer; numOutObjects: U32;
 
 proc tipcDispatchImpl*(s: ptr TipcService; requestId: U32; inData: pointer;
                       inDataSize: U32; outData: pointer; outDataSize: U32;
-                      disp: TipcDispatchParams): Result {.inline, cdecl,
-    importc: "tipcDispatchImpl".} =
+                      disp: TipcDispatchParams): Result {.inline, cdecl.} =
   var `in`: pointer = tipcMakeRequest(requestId, inDataSize, disp.inSendPid,
                                   disp.bufferAttrs, disp.buffers,
                                   disp.inNumHandles, disp.inHandles)

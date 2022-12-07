@@ -15,8 +15,7 @@ type
     counter*: U32
     autoclear*: bool
 
-proc leventInit*(le: ptr LEvent; signaled: bool; autoclear: bool) {.inline, cdecl,
-    importc: "leventInit".} =
+proc leventInit*(le: ptr LEvent; signaled: bool; autoclear: bool) {.inline, cdecl.} =
   ## *
   ##  @brief Initializes a user-mode light event.
   ##  @param[out] le Pointer to \ref LEvent structure.

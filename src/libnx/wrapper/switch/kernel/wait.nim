@@ -41,7 +41,7 @@ type
 
 ## / Creates a \ref Waiter for a kernel-mode \ref Handle.
 
-proc waiterForHandle*(h: Handle): Waiter {.inline, cdecl, importc: "waiterForHandle".} =
+proc waiterForHandle*(h: Handle): Waiter {.inline, cdecl.} =
   var waitObj: Waiter
   waitObj.`type` = WaiterTypeHandle
   waitObj.anoWait3.handle = h
@@ -98,7 +98,7 @@ proc waitHandles*(idxOut: ptr S32; handles: ptr Handle; numHandles: S32; timeout
 ##  @param[in] timeout Timeout (in nanoseconds).
 ##
 
-proc waitSingle*(w: Waiter; timeout: U64): Result {.inline, cdecl, importc: "waitSingle".} =
+proc waitSingle*(w: Waiter; timeout: U64): Result {.inline, cdecl.} =
   var idx: S32
   return waitObjects(addr(idx), addr(w), 1, timeout)
 
@@ -108,7 +108,6 @@ proc waitSingle*(w: Waiter; timeout: U64): Result {.inline, cdecl, importc: "wai
 ##  @param[in] timeout Timeout (in nanoseconds).
 ##
 
-proc waitSingleHandle*(h: Handle; timeout: U64): Result {.inline, cdecl,
-    importc: "waitSingleHandle".} =
+proc waitSingleHandle*(h: Handle; timeout: U64): Result {.inline, cdecl.} =
   var idx: S32
   return waitHandles(addr(idx), addr(h), 1, timeout)

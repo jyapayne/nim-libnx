@@ -152,8 +152,7 @@ proc cmifMakeControlRequest*(base: pointer; requestId: U32; size: U32): pointer 
   hdr.token = 0
   return hdr + 1
 
-proc cmifMakeCloseRequest*(base: pointer; objectId: U32) {.inline, cdecl,
-    importc: "cmifMakeCloseRequest".} =
+proc cmifMakeCloseRequest*(base: pointer; objectId: U32) {.inline, cdecl.} =
   var base = base
   if objectId.bool:
     var hipc = hipcMakeRequestInline(base,
@@ -170,32 +169,29 @@ proc cmifMakeCloseRequest*(base: pointer; objectId: U32) {.inline, cdecl,
     );
 
 proc cmifRequestInBuffer*(req: ptr CmifRequest; buffer: pointer; size: csize_t;
-                         mode: HipcBufferMode) {.inline, cdecl,
-    importc: "cmifRequestInBuffer".} =
+                         mode: HipcBufferMode) {.inline, cdecl.} =
   req.hipc.sendBuffers += 1
   req.hipc.sendBuffers[] = hipcMakeBuffer(buffer, size, mode)
 
 proc cmifRequestOutBuffer*(req: ptr CmifRequest; buffer: pointer; size: csize_t;
-                          mode: HipcBufferMode) {.inline, cdecl,
-    importc: "cmifRequestOutBuffer".} =
+                          mode: HipcBufferMode) {.inline, cdecl.} =
   req.hipc.recvBuffers += 1
   req.hipc.recvBuffers[] = hipcMakeBuffer(buffer, size, mode)
 
 proc cmifRequestInOutBuffer*(req: ptr CmifRequest; buffer: pointer; size: csize_t;
-                            mode: HipcBufferMode) {.inline, cdecl,
-    importc: "cmifRequestInOutBuffer".} =
+                            mode: HipcBufferMode) {.inline, cdecl.} =
   req.hipc.exchBuffers += 1
   req.hipc.exchBuffers[] = hipcMakeBuffer(buffer, size, mode)
 
 proc cmifRequestInPointer*(req: ptr CmifRequest; buffer: pointer; size: csize_t) {.
-    inline, cdecl, importc: "cmifRequestInPointer".} =
+    inline, cdecl.} =
   req.hipc.sendStatics += 1
   req.hipc.sendStatics[] = hipcMakeSendStatic(buffer, size, req.curInPtrId.U8)
   req.curInPtrId += 1
   dec(req.serverPointerSize, size)
 
 proc cmifRequestOutFixedPointer*(req: ptr CmifRequest; buffer: pointer; size: csize_t) {.
-    inline, cdecl, importc: "cmifRequestOutFixedPointer".} =
+    inline, cdecl.} =
   req.hipc.recvList += 1
   req.hipc.recvList[] = hipcMakeRecvStatic(buffer, size)
   dec(req.serverPointerSize, size)
@@ -207,8 +203,7 @@ proc cmifRequestOutPointer*(req: ptr CmifRequest; buffer: pointer; size: csize_t
   req.outPointerSizes[] = size.U16
 
 proc cmifRequestInAutoBuffer*(req: ptr CmifRequest; buffer: pointer; size: csize_t;
-                             mode: HipcBufferMode) {.inline, cdecl,
-    importc: "cmifRequestInAutoBuffer".} =
+                             mode: HipcBufferMode) {.inline, cdecl.} =
   if req.serverPointerSize.bool and size <= req.serverPointerSize:
     cmifRequestInPointer(req, buffer, size)
     cmifRequestInBuffer(req, nil, 0, mode)
@@ -217,8 +212,7 @@ proc cmifRequestInAutoBuffer*(req: ptr CmifRequest; buffer: pointer; size: csize
     cmifRequestInBuffer(req, buffer, size, mode)
 
 proc cmifRequestOutAutoBuffer*(req: ptr CmifRequest; buffer: pointer; size: csize_t;
-                              mode: HipcBufferMode) {.inline, cdecl,
-    importc: "cmifRequestOutAutoBuffer".} =
+                              mode: HipcBufferMode) {.inline, cdecl.} =
   if req.serverPointerSize.bool and size <= req.serverPointerSize:
     cmifRequestOutPointer(req, buffer, size)
     cmifRequestOutBuffer(req, nil, 0, mode)
@@ -226,18 +220,16 @@ proc cmifRequestOutAutoBuffer*(req: ptr CmifRequest; buffer: pointer; size: csiz
     cmifRequestOutPointer(req, nil, 0)
     cmifRequestOutBuffer(req, buffer, size, mode)
 
-proc cmifRequestObject*(req: ptr CmifRequest; objectId: U32) {.inline, cdecl,
-    importc: "cmifRequestObject".} =
+proc cmifRequestObject*(req: ptr CmifRequest; objectId: U32) {.inline, cdecl.} =
   req.objects += 1
   req.objects[] = objectId
 
-proc cmifRequestHandle*(req: ptr CmifRequest; handle: Handle) {.inline, cdecl,
-    importc: "cmifRequestHandle".} =
+proc cmifRequestHandle*(req: ptr CmifRequest; handle: Handle) {.inline, cdecl.} =
   req.hipc.copyHandles += 1
   req.hipc.copyHandles[] = handle
 
 proc cmifParseResponse*(res: ptr CmifResponse; base: pointer; isDomain: bool; size: U32): Result {.
-    inline, cdecl, importc: "cmifParseResponse".} =
+    inline, cdecl.} =
   var base = base
   var hipc: HipcResponse = hipcParseResponse(base)
   var start: pointer = cmifGetAlignedDataStart(hipc.dataWords, base)
@@ -258,23 +250,20 @@ proc cmifParseResponse*(res: ptr CmifResponse; base: pointer; isDomain: bool; si
   ## Error: expected ';'!!!
   return 0
 
-proc cmifResponseGetObject*(res: ptr CmifResponse): U32 {.inline, cdecl,
-    importc: "cmifResponseGetObject".} =
+proc cmifResponseGetObject*(res: ptr CmifResponse): U32 {.inline, cdecl.} =
   res.objects += 1
   return res.objects[]
 
-proc cmifResponseGetCopyHandle*(res: ptr CmifResponse): Handle {.inline, cdecl,
-    importc: "cmifResponseGetCopyHandle".} =
+proc cmifResponseGetCopyHandle*(res: ptr CmifResponse): Handle {.inline, cdecl.} =
   res.copyHandles += 1
   return res.copyHandles[]
 
-proc cmifResponseGetMoveHandle*(res: ptr CmifResponse): Handle {.inline, cdecl,
-    importc: "cmifResponseGetMoveHandle".} =
+proc cmifResponseGetMoveHandle*(res: ptr CmifResponse): Handle {.inline, cdecl.} =
   res.moveHandles += 1
   return res.moveHandles[]
 
 proc cmifConvertCurrentObjectToDomain*(h: Handle; outObjectId: ptr U32): Result {.
-    inline, cdecl, importc: "cmifConvertCurrentObjectToDomain".} =
+    inline, cdecl.} =
   var p = armGetTls()
   discard cmifMakeControlRequest(p, 0, 0)
   var rc: Result = svcSendSyncRequest(h)
@@ -287,7 +276,7 @@ proc cmifConvertCurrentObjectToDomain*(h: Handle; outObjectId: ptr U32): Result 
   return rc
 
 proc cmifCopyFromCurrentDomain*(h: Handle; objectId: U32; outH: ptr Handle): Result {.
-    inline, cdecl, importc: "cmifCopyFromCurrentDomain".} =
+    inline, cdecl.} =
   var p = armGetTls()
   var raw: pointer = cmifMakeControlRequest(p, 1, sizeof((U32)).U32)
   cast[ptr U32](raw)[] = objectId
@@ -300,8 +289,7 @@ proc cmifCopyFromCurrentDomain*(h: Handle; objectId: U32; outH: ptr Handle): Res
       outH[] = resp.moveHandles[0]
   return rc
 
-proc cmifCloneCurrentObject*(h: Handle; outH: ptr Handle): Result {.inline, cdecl,
-    importc: "cmifCloneCurrentObject".} =
+proc cmifCloneCurrentObject*(h: Handle; outH: ptr Handle): Result {.inline, cdecl.} =
   discard cmifMakeControlRequest(armGetTls(), 2, 0)
   var rc: Result = svcSendSyncRequest(h)
   if r_Succeeded(rc):
@@ -311,8 +299,7 @@ proc cmifCloneCurrentObject*(h: Handle; outH: ptr Handle): Result {.inline, cdec
       outH[] = resp.moveHandles[0]
   return rc
 
-proc cmifQueryPointerBufferSize*(h: Handle; outSize: ptr U16): Result {.inline, cdecl,
-    importc: "cmifQueryPointerBufferSize".} =
+proc cmifQueryPointerBufferSize*(h: Handle; outSize: ptr U16): Result {.inline, cdecl.} =
   discard cmifMakeControlRequest(armGetTls(), 3, 0)
   var rc: Result = svcSendSyncRequest(h)
   if r_Succeeded(rc):
@@ -322,8 +309,7 @@ proc cmifQueryPointerBufferSize*(h: Handle; outSize: ptr U16): Result {.inline, 
       outSize[] = cast[ptr U16](resp.data)[]
   return rc
 
-proc cmifCloneCurrentObjectEx*(h: Handle; tag: U32; outH: ptr Handle): Result {.inline,
-    cdecl, importc: "cmifCloneCurrentObjectEx".} =
+proc cmifCloneCurrentObjectEx*(h: Handle; tag: U32; outH: ptr Handle): Result {.inline, cdecl.} =
   var raw: pointer = cmifMakeControlRequest(armGetTls(), 4, sizeof((U32)).U32)
   cast[ptr U32](raw)[] = tag
   var rc: Result = svcSendSyncRequest(h)

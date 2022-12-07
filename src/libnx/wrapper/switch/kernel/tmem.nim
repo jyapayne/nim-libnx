@@ -75,8 +75,7 @@ proc tmemUnmap*(t: ptr TransferMemory): Result {.cdecl, importc: "tmemUnmap".}
 ##  @return Mapped address of the transfer memory object.
 ##
 
-proc tmemGetAddr*(t: ptr TransferMemory): pointer {.inline, cdecl,
-    importc: "tmemGetAddr".} =
+proc tmemGetAddr*(t: ptr TransferMemory): pointer {.inline, cdecl.} =
   return t.mapAddr
 
 ## *

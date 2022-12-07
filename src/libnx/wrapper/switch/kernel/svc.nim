@@ -564,8 +564,7 @@ proc svcWaitSynchronization*(index: ptr S32; handles: ptr Handle; handleCount: S
 ##  @note This is the raw syscall, which can be cancelled by \ref svcCancelSynchronization or other means. \ref waitHandles or \ref waitMultiHandle should normally be used instead.
 ##
 
-proc svcWaitSynchronizationSingle*(handle: Handle; timeout: U64): Result {.inline,
-    cdecl, importc: "svcWaitSynchronizationSingle".} =
+proc svcWaitSynchronizationSingle*(handle: Handle; timeout: U64): Result {.inline, cdecl.} =
   ## *
   ##  @brief Waits on a single synchronization object, optionally with a timeout.
   ##  @return Result code.

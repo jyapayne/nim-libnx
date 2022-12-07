@@ -90,7 +90,7 @@ proc friendsGetUserSetting*(uid: AccountUid; userSetting: ptr FriendsUserSetting
 ##
 
 proc friendsGetFriendInvitationNotificationEvent*(outEvent: ptr Event): Result {.
-    inline, cdecl, importc: "friendsGetFriendInvitationNotificationEvent".} =
+    inline, cdecl.} =
   return appletGetFriendInvitationStorageChannelEvent(outEvent)
 
 ## *
