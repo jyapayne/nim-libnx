@@ -1,17 +1,18 @@
 import
   libnx/results,
-  libnx/wrapper/sm
+  libnx/wrapper/switch/services/sm,
+  libnx/wrapper/switch/sf/service,
+  libnx/wrapper/switch/types
 
-from libnx/wrapper/types import Handle
 
 type
   Service* = ref object
-    serv: sm.Service
+    serv: service.Service
 
-proc getSmService*(serv: Service): sm.Service =
+proc getSmService*(serv: Service): service.Service =
   serv.serv
 
-proc newService*(serv: sm.Service): Service =
+proc newService*(serv: service.Service): Service =
   result = Service(serv: serv)
 
 proc isOverride*(service: Service): bool =
@@ -54,24 +55,6 @@ proc objectId*(service: Service): uint32 =
   ##
   serviceGetObjectId(service.serv.addr)
 
-proc close*(service: Service; objectId: uint32): Result =
-  ## *
-  ##  @brief Closes a domain object by ID.
-  ##  @param[in] s Service object, necessarily a domain or domain subservice.
-  ##  @param object_id ID of the object to close.
-  ##  @return Result code.
-  ##
-  serviceCloseObjectById(service.serv.addr, objectId).newResult
-
-
-proc ipcDispatch*(service: Service): Result =
-  ## *
-  ##  @brief Dispatches an IPC request to a service.
-  ##  @param[in] s Service object.
-  ##  @return Result code.
-  ##
-  serviceIpcDispatch(service.serv.addr).newResult
-
 proc createService*(handle: Handle): Service =
   ## *
   ##  @brief Creates a service object from an IPC session handle.
@@ -91,7 +74,7 @@ proc createDomainSubservice*(parent: Service; objectId: uint32): Service =
   result = new(Service)
   serviceCreateDomainSubservice(result.serv.addr, parent.serv.addr, objectId)
 
-proc convertToDomain*(service: Service): Result =
+proc convertToDomain*(service: Service): results.Result =
   ## *
   ##  @brief Converts a regular service to a domain.
   ##  @param[in] s Service object.

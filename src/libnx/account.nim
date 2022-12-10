@@ -1,7 +1,7 @@
 import strutils
-import libnx/wrapper/acc
+import libnx/wrapper/switch/services/acc
 import libnx/results
-import libnx/wrapper/types
+import libnx/wrapper/switch/types
 import libnx/ext/integer128
 import libnx/service
 import libnx/utils
@@ -19,7 +19,7 @@ type
   AccountImageLoadError* = object of AccountError
 
   User* = ref object
-    id*: u128
+    id*: AccountUid
     selected*: bool
     username*: string
     lastEdited*: uint64
@@ -32,24 +32,28 @@ type
 
   AccountImage* = ref object
     data: seq[uint8]
-    imageSize: int
+    imageSize: U32
+
+
+export AccountUid
+export AccountServiceType
 
 var enabled = false
 
 
 proc getService*(): Service =
-  let serv = accountGetService()[]
+  let serv = accountGetServiceSession()[]
   result = newService(serv)
 
 
-proc init() =
+proc init(ty: AccountServiceType) =
   ## Initializes the account service. Should not
   ## be used in client code
   let service = getService()
   if service.isActive:
     return
 
-  let code = accountInitialize().newResult
+  let code = accountInitialize(ty).newResult
   if code.failed:
     raiseEx(
       AccountInitError,
@@ -84,7 +88,7 @@ proc ensureEnabled() =
 
 proc getImageSize*(profile: AccountProfile): int =
   ensureEnabled()
-  var res = 0.csize
+  var res = 0.U32
   result = 0
   let code = accountProfileGetImageSize(profile.unsafeAddr, res.addr).newResult
   if code.failed:
@@ -92,19 +96,19 @@ proc getImageSize*(profile: AccountProfile): int =
   result = res.int
 
 
-proc imageSize*(user: User): int =
+proc imageSize*(user: User): csize_t =
   ensureEnabled()
   var prof: AccountProfile
-  var size: csize
+  var size: U32
   let res = accountProfileGetImageSize(prof.addr, size.addr).newResult
 
   if res.failed:
     raiseEx(AccountImageSizeError, "Error, could not get image size", res)
 
-  result = size.int
+  result = size.csize_t
 
 
-proc getProfileHelper(userID: u128): AccountProfile =
+proc getProfileHelper(userID: AccountUid): AccountProfile =
   let res = accountGetProfile(result.addr, userID).newResult
 
   if res.failed:
@@ -115,7 +119,6 @@ proc loadImage*(user: User): AccountImage =
   ensureEnabled()
   result = new(AccountImage)
   let imSize = user.imageSize()
-  var size: csize
 
   var prof = getProfileHelper(user.id)
 
@@ -137,7 +140,7 @@ proc userID*(user: User): string =
   $user.id
 
 
-proc getUser*(userID: u128): User =
+proc getUser*(userID: AccountUid): User =
   ensureEnabled()
   result = new(User)
 
@@ -154,7 +157,7 @@ proc getUser*(userID: u128): User =
   if res.failed:
     raiseEx(AccountUserDataError, "Error, could not get user data", res)
 
-  result.username = profBase.username.join("")
+  result.username = profBase.nickname.join("")
   result.lastEdited = profBase.lastEditTimestamp
   result.iconID = userData.iconID
   result.iconBgColorID = userData.iconBackgroundColorID
@@ -167,19 +170,15 @@ proc getActiveUser*(): User =
   ensureEnabled()
   result = new(User)
   var
-    userID: u128 = newUInt128(0,0)
-    selected: bool
+    userID: AccountUid
 
-  var res = accountGetActiveUser(userID.addr, selected.addr).newResult
+  var res = accountGetPreselectedUser(userID.addr).newResult
 
   if res.failed:
     raiseEx(AccountActiveUserError, "Error, could not get active user ID", res)
 
-  if not selected:
-    raiseEx(AccountUserNotSelectedError, "No user currently selected!")
-
   result.id = userID
-  result.selected = selected
+  result.selected = true
 
   var
     prof: AccountProfile = getProfileHelper(userID)
@@ -191,7 +190,7 @@ proc getActiveUser*(): User =
   if res.failed:
     raiseEx(AccountUserDataError, "Error, could not get user data", res)
 
-  result.username = profBase.username.join("")
+  result.username = profBase.nickname.join("")
   result.lastEdited = profBase.lastEditTimestamp
   result.iconID = userData.iconID
   result.iconBgColorID = userData.iconBackgroundColorID
@@ -235,8 +234,8 @@ proc listAllUsers*(): seq[User] =
   result = @[]
 
   var
-    userIDs: array[ACC_USER_LIST_SIZE, u128]
-    usersReturned: csize
+    userIDs: array[ACC_USER_LIST_SIZE, AccountUid]
+    usersReturned: S32
 
   let res = accountListAllUsers(
     userIDs[0].addr,

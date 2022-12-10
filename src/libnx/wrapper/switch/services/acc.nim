@@ -59,22 +59,23 @@ type
   AccountNetworkServiceAccountId* {.bycopy.} = object
     id*: U64                   ## /< Id.
 
-
-## / Initialize account.
-
 proc accountInitialize*(serviceType: AccountServiceType): Result {.cdecl,
     importc: "accountInitialize".}
-## / Exit account.
+## / Initialize account.
 
 proc accountExit*() {.cdecl, importc: "accountExit".}
-## / Gets the Service object for the actual account service session.
+## / Exit account.
 
 proc accountGetServiceSession*(): ptr Service {.cdecl,
     importc: "accountGetServiceSession".}
-## / Get the total number of user profiles.
+## / Gets the Service object for the actual account service session.
 
 proc accountGetUserCount*(userCount: ptr S32): Result {.cdecl,
     importc: "accountGetUserCount".}
+## / Get the total number of user profiles.
+
+proc accountListAllUsers*(uids: ptr AccountUid; maxUids: S32; actualTotal: ptr S32): Result {.
+    cdecl, importc: "accountListAllUsers".}
 ## *
 ##  @brief Get a list of all userIds. The returned list will never be larger than ACC_USER_LIST_SIZE.
 ##  @param uids Pointer to array of userIds.
@@ -82,52 +83,50 @@ proc accountGetUserCount*(userCount: ptr S32): Result {.cdecl,
 ##  @param actual_total The actual total number of userIds found.
 ##
 
-proc accountListAllUsers*(uids: ptr AccountUid; maxUids: S32; actualTotal: ptr S32): Result {.
-    cdecl, importc: "accountListAllUsers".}
-## / Get the userId for the last opened user.
-
 proc accountGetLastOpenedUser*(uid: ptr AccountUid): Result {.cdecl,
     importc: "accountGetLastOpenedUser".}
-## / Get an AccountProfile for the specified userId.
+## / Get the userId for the last opened user.
 
 proc accountGetProfile*(`out`: ptr AccountProfile; uid: AccountUid): Result {.cdecl,
     importc: "accountGetProfile".}
-## / IsUserRegistrationRequestPermitted
+## / Get an AccountProfile for the specified userId.
 
 proc accountIsUserRegistrationRequestPermitted*(`out`: ptr bool): Result {.cdecl,
     importc: "accountIsUserRegistrationRequestPermitted".}
-## / TrySelectUserWithoutInteraction
+## / IsUserRegistrationRequestPermitted
 
 proc accountTrySelectUserWithoutInteraction*(uid: ptr AccountUid;
     isNetworkServiceAccountRequired: bool): Result {.cdecl,
     importc: "accountTrySelectUserWithoutInteraction".}
-## / Close the AccountProfile.
+## / TrySelectUserWithoutInteraction
 
 proc accountProfileClose*(profile: ptr AccountProfile) {.cdecl,
     importc: "accountProfileClose".}
-## / Get \ref AccountUserData and \ref AccountProfileBase for the specified profile, userdata is optional (can be NULL).
+## / Close the AccountProfile.
 
 proc accountProfileGet*(profile: ptr AccountProfile; userdata: ptr AccountUserData;
                        profilebase: ptr AccountProfileBase): Result {.cdecl,
     importc: "accountProfileGet".}
-## / Get the icon image size.
+## / Get \ref AccountUserData and \ref AccountProfileBase for the specified profile, userdata is optional (can be NULL).
 
 proc accountProfileGetImageSize*(profile: ptr AccountProfile; imageSize: ptr U32): Result {.
     cdecl, importc: "accountProfileGetImageSize".}
-## / Load the JPEG profile icon, valid for both Miis and character icons. The output image_size is the same as the one from \ref accountProfileGetImageSize.
+## / Get the icon image size.
 
 proc accountProfileLoadImage*(profile: ptr AccountProfile; buf: pointer; len: csize_t;
                              imageSize: ptr U32): Result {.cdecl,
     importc: "accountProfileLoadImage".}
-## / Gets the userId which was selected by the profile-selector applet (if any), prior to launching the currently running Application.
-## / This gets the cached PreselectedUser loaded during accountInitialize, when PreselectedUser is available.
+## / Load the JPEG profile icon, valid for both Miis and character icons. The output image_size is the same as the one from \ref accountProfileGetImageSize.
 
 proc accountGetPreselectedUser*(uid: ptr AccountUid): Result {.cdecl,
     importc: "accountGetPreselectedUser".}
-## *
-##  @brief Checks whether the specified \ref AccountUid is valid/set (non-zero).
-##  @param[in] Uid \ref AccountUid
-##
+## / Gets the userId which was selected by the profile-selector applet (if any), prior to launching the currently running Application.
+## / This gets the cached PreselectedUser loaded during accountInitialize, when PreselectedUser is available.
 
 proc accountUidIsValid*(uid: ptr AccountUid): bool {.inline, cdecl.} =
+  ## *
+  ##  @brief Checks whether the specified \ref AccountUid is valid/set (non-zero).
+  ##  @param[in] Uid \ref AccountUid
+  ##
+
   return uid.uid[0] != 0 or uid.uid[1] != 0

@@ -1,7 +1,6 @@
 import strutils
 import
-  libnx/wrapper/result,
-  libnx/wrapper/types
+  libnx/wrapper/switch/result
 
 type
 
@@ -83,8 +82,8 @@ type
     IoctlFailed           #///< Maps to Nvidia: 0x3000F
 
 
-proc succeeded*(res: Result): bool = res.code.R_SUCCEEDED
-proc failed*(res: Result): bool = res.code.R_FAILED
+proc succeeded*(res: Result): bool {.inline.} = res.code.r_SUCCEEDED
+proc failed*(res: Result): bool {.inline.} = res.code.r_FAILED
 
 proc newResult*(code: uint32): Result =
   ## Create a result from a libnx error code for friendlier syntax.
@@ -92,12 +91,12 @@ proc newResult*(code: uint32): Result =
 
   result.code = code
 
-  let moduleCode = code.R_MODULE
+  let moduleCode = code.r_MODULE
   let module = Module(moduleCode)
 
   result.kind = module
 
-  let descCode = code.R_DESCRIPTION
+  let descCode = code.r_DESCRIPTION
 
   var error = "Unknown error: module: $# description: $#" %
               [$moduleCode, $descCode]

@@ -72,74 +72,68 @@ type
     outHandles*: ptr Handle
 
 
-
-## *
-##  @brief Returns whether a service has been initialized.
-##  @param[in] s Service object.
-##  @return true if initialized.
-##
-
 proc serviceIsActive*(s: ptr Service): bool {.inline, cdecl.} =
+  ## *
+  ##  @brief Returns whether a service has been initialized.
+  ##  @param[in] s Service object.
+  ##  @return true if initialized.
+  ##
   return s.session != Invalid_Handle
 
-## *
-##  @brief Returns whether a service is overriden in the homebrew environment.
-##  @param[in] s Service object.
-##  @return true if overriden.
-##
-
 proc serviceIsOverride*(s: ptr Service): bool {.inline, cdecl.} =
+  ## *
+  ##  @brief Returns whether a service is overriden in the homebrew environment.
+  ##  @param[in] s Service object.
+  ##  @return true if overriden.
+  ##
   return serviceIsActive(s) and not s.ownHandle.bool and not s.objectId.bool
 
-## *
-##  @brief Returns whether a service is a domain.
-##  @param[in] s Service object.
-##  @return true if a domain.
-##
-
 proc serviceIsDomain*(s: ptr Service): bool {.inline, cdecl.} =
+  ## *
+  ##  @brief Returns whether a service is a domain.
+  ##  @param[in] s Service object.
+  ##  @return true if a domain.
+  ##
   return serviceIsActive(s) and s.ownHandle.bool and s.objectId.bool
 
-## *
-##  @brief Returns whether a service is a domain subservice.
-##  @param[in] s Service object.
-##  @return true if a domain subservice.
-##
-
 proc serviceIsDomainSubservice*(s: ptr Service): bool {.inline, cdecl.} =
+  ## *
+  ##  @brief Returns whether a service is a domain subservice.
+  ##  @param[in] s Service object.
+  ##  @return true if a domain subservice.
+  ##
   return serviceIsActive(s) and not s.ownHandle.bool and s.objectId.bool
 
-## *
-##  @brief For a domain/domain subservice, return the associated object ID.
-##  @param[in] s Service object, necessarily a domain or domain subservice.
-##  @return The object ID.
-##
-
 proc serviceGetObjectId*(s: ptr Service): U32 {.inline, cdecl.} =
+  ## *
+  ##  @brief For a domain/domain subservice, return the associated object ID.
+  ##  @param[in] s Service object, necessarily a domain or domain subservice.
+  ##  @return The object ID.
+  ##
   return s.objectId
 
-## *
-##  @brief Creates a service object from an IPC session handle.
-##  @param[out] s Service object.
-##  @param[in] h IPC session handle.
-##
-
 proc serviceCreate*(s: ptr Service; h: Handle) {.inline, cdecl.} =
+  ## *
+  ##  @brief Creates a service object from an IPC session handle.
+  ##  @param[out] s Service object.
+  ##  @param[in] h IPC session handle.
+  ##
+
   s.session = h
   s.ownHandle = 1
   s.objectId = 0
   s.pointerBufferSize = 0
   discard cmifQueryPointerBufferSize(h, addr(s.pointerBufferSize))
 
-## *
-##  @brief Creates a non-domain subservice object from a parent service.
-##  @param[out] s Service object.
-##  @param[in] parent Parent service.
-##  @param[in] h IPC session handle for this subservice.
-##
-
 proc serviceCreateNonDomainSubservice*(s: ptr Service; parent: ptr Service; h: Handle) {.
     inline, cdecl.} =
+  ## *
+  ##  @brief Creates a non-domain subservice object from a parent service.
+  ##  @param[out] s Service object.
+  ##  @param[in] parent Parent service.
+  ##  @param[in] h IPC session handle for this subservice.
+  ##
+
   if h != Invalid_Handle:
     s.session = h
     s.ownHandle = 1
@@ -148,15 +142,15 @@ proc serviceCreateNonDomainSubservice*(s: ptr Service; parent: ptr Service; h: H
   else:
     s[] = Service()
 
-## *
-##  @brief Creates a domain subservice object from a parent service.
-##  @param[out] s Service object.
-##  @param[in] parent Parent service, necessarily a domain or domain subservice.
-##  @param[in] object_id Object ID for this subservice.
-##
-
 proc serviceCreateDomainSubservice*(s: ptr Service; parent: ptr Service; objectId: U32) {.
     inline, cdecl.} =
+  ## *
+  ##  @brief Creates a domain subservice object from a parent service.
+  ##  @param[out] s Service object.
+  ##  @param[in] parent Parent service, necessarily a domain or domain subservice.
+  ##  @param[in] object_id Object ID for this subservice.
+  ##
+
   if objectId != 0:
     s.session = parent.session
     s.ownHandle = 0
@@ -165,24 +159,24 @@ proc serviceCreateDomainSubservice*(s: ptr Service; parent: ptr Service; objectI
   else:
     s[] = Service()
 
-## *
-##  @brief Hints the compiler that a service will always contain a domain object.
-##  @param[in] _s Service object.
-##
-
 template serviceAssumeDomain*(s: untyped): void =
+  ## *
+  ##  @brief Hints the compiler that a service will always contain a domain object.
+  ##  @param[in] _s Service object.
+  ##
+
   while true:
     if not (s).objectId.bool:
       builtinUnreachable()
     if not 0:
       break
 
-## *
-##  @brief Closes a service.
-##  @param[in] s Service object.
-##
 
 proc serviceClose*(s: ptr Service) {.inline, cdecl.} =
+  ## *
+  ##  @brief Closes a service.
+  ##  @param[in] s Service object.
+  ##
   {.emit: "#if defined(NX_SERVICE_ASSUME_NON_DOMAIN)".}
   {.emit: "    if (`s`->object_id)".}
   {.emit: "        __builtin_unreachable();".}
@@ -195,13 +189,12 @@ proc serviceClose*(s: ptr Service) {.inline, cdecl.} =
   {.emit: "    }".}
   {.emit: "    *`s` = (Service){};".}
 
-## *
-##  @brief Clones a service.
-##  @param[in] s Service object.
-##  @param[out] out_s Output service object.
-##
-
 proc serviceClone*(s: ptr Service; outS: ptr Service): Result {.inline, cdecl.} =
+  ## *
+  ##  @brief Clones a service.
+  ##  @param[in] s Service object.
+  ##  @param[out] out_s Output service object.
+  ##
   {.emit: "#if defined(NX_SERVICE_ASSUME_NON_DOMAIN)".}
   {.emit: "    if (`s`->object_id)".}
   {.emit: "        __builtin_unreachable();".}
@@ -212,14 +205,14 @@ proc serviceClone*(s: ptr Service; outS: ptr Service): Result {.inline, cdecl.} 
   {.emit: "    `outS`->pointer_buffer_size = `s`->pointer_buffer_size;".}
   {.emit: "    `result` = cmifCloneCurrentObject(`s`->session, &`outS`->session);".}
 
-## *
-##  @brief Clones a service with a session manager tag.
-##  @param[in] s Service object.
-##  @param[in] tag Session manager tag (unused in current official server code)
-##  @param[out] out_s Output service object.
-##
 
 proc serviceCloneEx*(s: ptr Service; tag: U32; outS: ptr Service): Result {.inline, cdecl.} =
+  ## *
+  ##  @brief Clones a service with a session manager tag.
+  ##  @param[in] s Service object.
+  ##  @param[in] tag Session manager tag (unused in current official server code)
+  ##  @param[out] out_s Output service object.
+  ##
   {.emit: "#if defined(NX_SERVICE_ASSUME_NON_DOMAIN)".}
   {.emit: "    if (`s`->object_id)".}
   {.emit: "        __builtin_unreachable();".}
@@ -230,13 +223,13 @@ proc serviceCloneEx*(s: ptr Service; tag: U32; outS: ptr Service): Result {.inli
   {.emit: "    `outS`->pointer_buffer_size = `s`->pointer_buffer_size;".}
   {.emit: "    `result` = cmifCloneCurrentObjectEx(`s`->session, `tag`, &`outS`->session);".}
 
-## *
-##  @brief Converts a regular service to a domain.
-##  @param[in] s Service object.
-##  @return Result code.
-##
 
 proc serviceConvertToDomain*(s: ptr Service): Result {.inline, cdecl.} =
+  ## *
+  ##  @brief Converts a regular service to a domain.
+  ##  @param[in] s Service object.
+  ##  @return Result code.
+  ##
   if not s.ownHandle.bool:
     ##  For overridden services, create a clone first.
     var rc: Result = cmifCloneCurrentObjectEx(s.session, 0, addr(s.session))
